@@ -17,4 +17,8 @@ public class MyTerm {
         this.principal=principal;
         this.months=months;
     }
+
+    public double getPrincipal() {
+        return principal;
+    }
 }

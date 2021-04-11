@@ -1,7 +1,9 @@
 package com.example.lab1.service;
 
 import com.example.lab1.entity.*;
+import com.example.lab1.model.MyFund;
 import com.example.lab1.model.MyStock;
+import com.example.lab1.model.MyTerm;
 
 import java.util.Date;
 import java.util.List;
@@ -9,7 +11,7 @@ import java.util.List;
 
 public interface ProductService {
     List<Fund> getAllFund();
-    Fund getProductByFundCode(String fundCode);
+    Fund getFundByFundCode(String fundCode);
     List<Term> getAllTerm();
     Term getTermByTermCode(String termCode);
     List<Stock> getAllStock();
@@ -29,9 +31,7 @@ public interface ProductService {
     int getAccountLv(String accountNum);
 
     /**
-     * buy product
-     * 购买理财产品之前，如果账面存在罚金未缴清，需先缴清罚金才能购
-     * 买理财产品。
+     * 购买基金
      * @param customerCode :用户code
      * @param idNumber ：用户身份证
      * @param accountNum ： 用户银行卡号
@@ -40,12 +40,46 @@ public interface ProductService {
      * @return
      */
     int buyFund(String fundCode,String customerCode, String idNumber, String accountNum,String password, double amount);
+
+    /**
+     * 售出基金
+     * @param fundCode
+     * @param customerCode
+     * @param idNumber
+     * @param accountNum
+     * @param password
+     * @param amount
+     * @return
+     */
     int sellFund(String fundCode,String customerCode,String idNumber, String accountNum,String password, double amount);
 
+    /**
+     * 查询客户的购买的基金
+     * @param customerCode
+     * @return
+     */
+    List<MyFund> queryFundByCustomerCode(String customerCode);
+
+    /**
+     * 购买定期
+     * @param termCode
+     * @param customerCode
+     * @param idNumber
+     * @param accountNum
+     * @param password
+     * @param amount
+     * @return
+     */
     int buyTerm(String termCode,String customerCode, String idNumber, String accountNum,String password, double amount);
 
     /**
-     *购买股票之前
+     * 查询用户持有的定期理财产品
+     * @param customerCode
+     * @return
+     */
+    public List<MyTerm> queryTermByCustomerCode(String customerCode);
+    /**
+     *购买股票
      * @param customerCode
      * @param idNumber
      * @param accountNum
@@ -54,6 +88,21 @@ public interface ProductService {
      * @return 0：failure；1：ok
      */
     int buyStock(String stockCode,String customerCode,String idNumber,String accountNum,String password,int amount);
+
+    /**
+     * 获得股票最新价格
+     * @param stockCode
+     * @return
+     */
+    double getLeastStockPrice(String stockCode);
+
+    /**
+     * 获得目前股票持仓
+     * @param customerId
+     * @param stockCode
+     * @return
+     */
+    int getStockNowAccount(int customerId,String stockCode);
 
     /**
      * 卖出股票
@@ -80,7 +129,7 @@ public interface ProductService {
      */
     double queryStockPriceInTime(String stockCode, Date time);
     /**
-     * 查询用户购买的股票
+     * 查询用户购买的股票,如果该股票没有持仓也要返回
      * @param customerCode
      * @return
      */

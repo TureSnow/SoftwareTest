@@ -13,4 +13,8 @@ public class MyFund {
         this.principal=principal;
         this.profit=total-principal;
     }
+
+    public double getPrincipal() {
+        return principal;
+    }
 }

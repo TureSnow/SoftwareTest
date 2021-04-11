@@ -1,10 +1,13 @@
 package com.example.lab1.service.Impl;
 import com.example.lab1.dao.*;
 import com.example.lab1.entity.*;
+import com.example.lab1.model.MyFund;
 import com.example.lab1.model.MyStock;
+import com.example.lab1.model.MyTerm;
 import com.example.lab1.service.ProductService;
 import org.springframework.stereotype.Service;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -26,42 +29,21 @@ public class ProductServiceImpl implements ProductService {
         this.cardsDao = cardsDao;
         this.loansDao = loansDao;
     }
-
-    @Override
-    public List<Fund> getAllFund() {
-        return fundMapper.getAllFund();
+    //检验用户数据
+    //todo:考虑加密
+    public boolean checkCustomerAndCard(String customerCode, String idNumber, String accountNum, String password){
+        Customer customer = customersDao.findCustomerByCode(customerCode);
+        if (customer==null)
+            return false;
+        if (!customer.getIdNumber().equals(idNumber))
+            return false;
+        Card card = cardsDao.findCardByAccountNum(accountNum);
+        if (card==null)
+            return false;
+        if (!card.getPassword().equals(password)||!card.getCustomerCode().equals(customerCode))
+            return false;
+        return true;
     }
-
-    @Override
-    public Fund getProductByFundCode(String fundCode) {
-        return fundMapper.selectByCode(fundCode);
-    }
-
-    @Override
-    public List<Term> getAllTerm() {
-        return termMapper.getAllTerm();
-    }
-
-    @Override
-    public Term getTermByTermCode(String termCode) {
-        return termMapper.getTermByTermCode(termCode);
-    }
-
-    @Override
-    public List<Stock> getAllStock() {
-        StockExample stockExample=new StockExample();
-        stockExample.or();
-        return stockMapper.selectByExample(stockExample);
-    }
-
-    @Override
-    public Stock getStockByStockCode(String stockCode) {
-        StockExample stockExample = new StockExample();
-        stockExample.or().andCodeEqualTo(stockCode);
-        List<Stock> stocks = stockMapper.selectByExample(stockExample);
-        return stocks.size()==0?null:stocks.get(0);
-    }
-
     @Override
     public int getAccountLv(String accountNum) {
         Card card = cardsDao.findCardByAccountNum(accountNum);
@@ -81,7 +63,20 @@ public class ProductServiceImpl implements ProductService {
         else if (count>=0)
             return 2;
         else
-        return 3;
+            return 3;
+    }
+
+
+
+
+    @Override
+    public List<Fund> getAllFund() {
+        return fundMapper.getAllFund();
+    }
+
+    @Override
+    public Fund getFundByFundCode(String fundCode) {
+        return fundMapper.selectByCode(fundCode);
     }
 
     @Override
@@ -165,6 +160,51 @@ public class ProductServiceImpl implements ProductService {
         }
         return -1;
     }
+    //查询某一客户对某一基金的持有量
+    public MyFund queryByCustomerIdAndFundCode(int customerId,String fundCode){
+        CustomerFundBuyExample example=new CustomerFundBuyExample();
+        Fund fund = fundMapper.selectByCode(fundCode);
+        example.or().andCustomerIdEqualTo(customerId).andFundCodeEqualTo(fundCode);
+        List<CustomerFundBuy> buys = customerFundBuyMapper.selectByExample(example);
+        MyFund res;
+        if (buys.size()==0){
+            res=new MyFund(fundCode,fund.getName(),0,0);
+        }else {
+            res=new MyFund(fundCode,fund.getName(),buys.get(0).getTotal(),buys.get(0).getPrincipal());
+        }
+        return res;
+    }
+
+    public List<MyFund> queryFundByCustomerCode(String customerCode){
+        Customer customer = customersDao.findCustomerByCode(customerCode);
+        if (customer==null)
+            return null;
+        List<Fund> funds = fundMapper.selectByExample(new FundExample());
+        List<MyFund> ihave=new LinkedList<>();
+        List<MyFund> nothave=new LinkedList<>();
+        for(Fund fund:funds){
+            MyFund myFund = queryByCustomerIdAndFundCode(customer.getId(), fund.getCode());
+            if (myFund.getPrincipal()>0)
+                ihave.add(myFund);
+            else
+                nothave.add(myFund);
+        }
+        return merge(ihave,nothave);
+    }
+
+
+
+
+
+    @Override
+    public List<Term> getAllTerm() {
+        return termMapper.getAllTerm();
+    }
+
+    @Override
+    public Term getTermByTermCode(String termCode) {
+        return termMapper.getTermByTermCode(termCode);
+    }
 
     @Override
     public int buyTerm(String termCode,String customerCode, String idNumber, String accountNum, String password, double amount) {
@@ -187,6 +227,63 @@ public class ProductServiceImpl implements ProductService {
         customerTerm.setTime(new Date());
         customerTerm.setTermCode(termCode);
         return customerTermMapper.insert(customerTerm);
+    }
+
+    public MyTerm queryTermByCustomerIdAndTermCode(int customerId,String termCode){
+        CustomerTermExample example=new CustomerTermExample();
+        Term term = termMapper.getTermByTermCode(termCode);
+        if (term==null)
+            return null;
+        example.or().andCustomerIdEqualTo(customerId).andTermCodeEqualTo(termCode);
+        List<CustomerTerm> customerTerms = customerTermMapper.selectByExample(example);
+        MyTerm res;
+        if (customerTerms.size()==0){
+            res=new MyTerm(termCode,term.getName(),0,0,0,null);
+        }else {
+            CustomerTerm customerTerm = customerTerms.get(0);
+            //本金x年数x年利率
+            double profit=customerTerm.getPrinciple()*term.getMinTerm()*term.getRate()/(100*12);
+
+            res=new MyTerm(termCode,term.getName(),customerTerm.getPrinciple(),profit,term.getMinTerm(),customerTerm.getTime());
+        }
+        return res;
+    }
+    @Override
+    public List<MyTerm> queryTermByCustomerCode(String customerCode){
+        Customer customer = customersDao.findCustomerByCode(customerCode);
+        if (customer==null)
+            return null;
+        List<Term> terms = termMapper.selectByExample(new TermExample());
+        List<MyTerm> ihave=new LinkedList<>();
+        List<MyTerm> nothave=new LinkedList<>();
+        for (Term term:terms){
+            MyTerm myTerm = queryTermByCustomerIdAndTermCode(customer.getId(), term.getCode());
+            if (myTerm.getPrincipal()>0)
+                ihave.add(myTerm);
+            else
+                nothave.add(myTerm);
+        }
+        return merge(ihave,nothave);
+    }
+
+
+
+
+
+
+    @Override
+    public List<Stock> getAllStock() {
+        StockExample stockExample=new StockExample();
+        stockExample.or();
+        return stockMapper.selectByExample(stockExample);
+    }
+
+    @Override
+    public Stock getStockByStockCode(String stockCode) {
+        StockExample stockExample = new StockExample();
+        stockExample.or().andCodeEqualTo(stockCode);
+        List<Stock> stocks = stockMapper.selectByExample(stockExample);
+        return stocks.size()==0?null:stocks.get(0);
     }
 
     @Override
@@ -220,25 +317,12 @@ public class ProductServiceImpl implements ProductService {
         }
         return -1;
     }
+    //获得股票最新价格
     public double getLeastStockPrice(String stockCode){
         List<StockPriceTime> stockPriceTimes = stockPriceTimeMapper.selectByStockCode(stockCode);
         return stockPriceTimes.get(0).getPrice();
     }
-    //检验用户数据
-    //todo:考虑加密
-    public boolean checkCustomerAndCard(String customerCode, String idNumber, String accountNum, String password){
-        Customer customer = customersDao.findCustomerByCode(customerCode);
-        if (customer==null)
-            return false;
-        if (!customer.getIdNumber().equals(idNumber))
-            return false;
-        Card card = cardsDao.findCardByAccountNum(accountNum);
-        if (card==null)
-            return false;
-        if (!card.getPassword().equals(password)||!card.getCustomerCode().equals(customerCode))
-            return false;
-        return true;
-    }
+
     //获得目前股票持仓情况
     public int getStockNowAccount(int customerId,String stockCode){
         CustomerStockBuyExample buyExample=new CustomerStockBuyExample();
@@ -284,28 +368,68 @@ public class ProductServiceImpl implements ProductService {
         }
         return -1;
     }
+
     @Override
     public List<StockPriceTime> queryStockPrice(String stockCode) {
-
-        return null;
+        return stockPriceTimeMapper.selectByStockCode(stockCode);
     }
 
     @Override
     public double queryStockPriceInTime(String stockCode, Date time) {
-        return 0;
+        List<StockPriceTime> stockPriceTimes = stockPriceTimeMapper.selectByStockCode(stockCode);
+        if (stockPriceTimes.size()==0)
+            return -1;
+        double price=0;
+        for(StockPriceTime priceTime:stockPriceTimes){
+            if(time.after(priceTime.getTime())){
+                //找到第一个在给定时间之前（最新）的价格
+                //date: 2.10   2.9    2.8
+                //price:8.89   23.0   8.82
+                price=priceTime.getPrice();
+                break;
+            }
+        }
+        return price;
     }
 
     @Override
     public List<MyStock> queryStockByCustomerCode(String customerCode) {
-        return null;
+        StockExample example=new StockExample();
+        List<Stock> stocks = stockMapper.selectByExample(example);
+        Customer customer = customersDao.findCustomerByCode(customerCode);
+        if (customer==null)
+            return null;
+        List<MyStock> iHave=new LinkedList<>();
+        List<MyStock> notHave=new LinkedList<>();
+        for (Stock stock:stocks){
+            String stockCode=stock.getCode();
+            int amount=getStockNowAccount(customer.getId(),stockCode);
+            MyStock temp=new MyStock(stockCode,stock.getName(),amount);
+            if (amount==0){
+                notHave.add(temp);
+            }else {
+                iHave.add(temp);
+            }
+        }
+        return merge(iHave,notHave);
     }
 
-    @Override
+    static <T> List<T> merge(List<T> l1,List<T>l2){
+        List<T> res=new LinkedList<>();
+        for (T t:l1){
+            res.add(t);
+        }
+        for (T t:l2){
+            res.add(t);
+        }
+        return res;
+    }
+
+    //todo
     public List<CustomerStockBuy> queryStockBuyByCustomerCode(String customerCode) {
         return null;
     }
-
-    @Override
+    //todo
     public List<CustomerStockSell> queryStockSellByCustomerCode(String customerCode) {
         return null;
     }
