@@ -107,8 +107,9 @@ public class LoanServiceImpl implements LoanService {
     }
 
     public List<Loan> findLoansByCustomerCode(String customerCode){
-        List<Loan> loanList=findLoansByCustomerCode(customerCode);
-
+        LoanExample example=new LoanExample();
+        example.or().andCustomerCodeEqualTo(customerCode);
+        List<Loan> loanList=loanMapper.selectByExample(example);
         for (int i = 0; i < loanList.size(); i++) {
             loanList.get(i).setDueBalance(calculateDueBalance(loanList.get(i).getIouNum()));
 
@@ -242,11 +243,13 @@ public class LoanServiceImpl implements LoanService {
     }
 
     public RepayPlan findRepayPlanById(int id){
-        return findRepayPlanById(id);
+        return repayPlanMapper.selectByPrimaryKey(id);
     }
 
     public List<RepayPlan> findRepayPlansByIouNum(String iouNum){
-        return findRepayPlansByIouNum(iouNum);
+        RepayPlanExample example=new RepayPlanExample();
+        example.or().andIouNumEqualTo(iouNum);
+        return repayPlanMapper.selectByExample(example);
     }
     public List<RepayPlan> findUnPayPlans(String iouNum){
         List<RepayPlan> repayPlanList=findRepayPlansByIouNum(iouNum);
