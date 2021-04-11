@@ -1,6 +1,5 @@
 package com.example.lab1.dao;
 
-import com.example.lab1.entity.Fund;
 import com.example.lab1.entity.Term;
 import com.example.lab1.entity.TermExample;
 import java.util.List;
@@ -28,8 +27,4 @@ public interface TermMapper {
     int updateByPrimaryKeySelective(Term record);
 
     int updateByPrimaryKey(Term record);
-
-    List<Term> getAllTerm();
-
-    Term getTermByTermCode(String termCode);
 }

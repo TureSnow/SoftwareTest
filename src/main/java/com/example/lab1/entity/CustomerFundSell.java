@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.Date;
 
 public class CustomerFundSell implements Serializable {
+    private Integer id;
+
     private Integer customerId;
 
     private String fundCode;
@@ -13,6 +15,14 @@ public class CustomerFundSell implements Serializable {
     private Date sellTime;
 
     private static final long serialVersionUID = 1L;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
     public Integer getCustomerId() {
         return customerId;
@@ -58,7 +68,8 @@ public class CustomerFundSell implements Serializable {
             return false;
         }
         CustomerFundSell other = (CustomerFundSell) that;
-        return (this.getCustomerId() == null ? other.getCustomerId() == null : this.getCustomerId().equals(other.getCustomerId()))
+        return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
+            && (this.getCustomerId() == null ? other.getCustomerId() == null : this.getCustomerId().equals(other.getCustomerId()))
             && (this.getFundCode() == null ? other.getFundCode() == null : this.getFundCode().equals(other.getFundCode()))
             && (this.getSellAmount() == null ? other.getSellAmount() == null : this.getSellAmount().equals(other.getSellAmount()))
             && (this.getSellTime() == null ? other.getSellTime() == null : this.getSellTime().equals(other.getSellTime()));
@@ -68,6 +79,7 @@ public class CustomerFundSell implements Serializable {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
+        result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
         result = prime * result + ((getCustomerId() == null) ? 0 : getCustomerId().hashCode());
         result = prime * result + ((getFundCode() == null) ? 0 : getFundCode().hashCode());
         result = prime * result + ((getSellAmount() == null) ? 0 : getSellAmount().hashCode());
@@ -81,6 +93,7 @@ public class CustomerFundSell implements Serializable {
         sb.append(getClass().getSimpleName());
         sb.append(" [");
         sb.append("Hash = ").append(hashCode());
+        sb.append(", id=").append(id);
         sb.append(", customerId=").append(customerId);
         sb.append(", fundCode=").append(fundCode);
         sb.append(", sellAmount=").append(sellAmount);

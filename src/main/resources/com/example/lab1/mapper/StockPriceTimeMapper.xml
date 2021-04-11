@@ -2,6 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.example.lab1.dao.StockPriceTimeMapper" >
   <resultMap id="BaseResultMap" type="com.example.lab1.entity.StockPriceTime" >
+    <id column="id" property="id" jdbcType="INTEGER" />
     <result column="stock_code" property="stockCode" jdbcType="CHAR" />
     <result column="time" property="time" jdbcType="TIMESTAMP" />
     <result column="price" property="price" jdbcType="DOUBLE" />
@@ -65,7 +66,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-    stock_code, time, price
+    id, stock_code, time, price
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.example.lab1.entity.StockPriceTimeExample" >
     select
@@ -81,10 +82,16 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByStockCode" parameterType="java.lang.String">
-    select  * from stock_price_time
-    where stockCode=#{stockCode} order by time desc
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from stock_price_time
+    where id = #{id,jdbcType=INTEGER}
   </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from stock_price_time
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
   <delete id="deleteByExample" parameterType="com.example.lab1.entity.StockPriceTimeExample" >
     delete from stock_price_time
     <if test="_parameter != null" >
@@ -92,12 +99,18 @@
     </if>
   </delete>
   <insert id="insert" parameterType="com.example.lab1.entity.StockPriceTime" >
+    <selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER" >
+      SELECT LAST_INSERT_ID()
+    </selectKey>
     insert into stock_price_time (stock_code, time, price
       )
     values (#{stockCode,jdbcType=CHAR}, #{time,jdbcType=TIMESTAMP}, #{price,jdbcType=DOUBLE}
       )
   </insert>
   <insert id="insertSelective" parameterType="com.example.lab1.entity.StockPriceTime" >
+    <selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER" >
+      SELECT LAST_INSERT_ID()
+    </selectKey>
     insert into stock_price_time
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="stockCode != null" >
@@ -131,6 +144,9 @@
   <update id="updateByExampleSelective" parameterType="map" >
     update stock_price_time
     <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
       <if test="record.stockCode != null" >
         stock_code = #{record.stockCode,jdbcType=CHAR},
       </if>
@@ -147,11 +163,34 @@
   </update>
   <update id="updateByExample" parameterType="map" >
     update stock_price_time
-    set stock_code = #{record.stockCode,jdbcType=CHAR},
+    set id = #{record.id,jdbcType=INTEGER},
+      stock_code = #{record.stockCode,jdbcType=CHAR},
       time = #{record.time,jdbcType=TIMESTAMP},
       price = #{record.price,jdbcType=DOUBLE}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.example.lab1.entity.StockPriceTime" >
+    update stock_price_time
+    <set >
+      <if test="stockCode != null" >
+        stock_code = #{stockCode,jdbcType=CHAR},
+      </if>
+      <if test="time != null" >
+        time = #{time,jdbcType=TIMESTAMP},
+      </if>
+      <if test="price != null" >
+        price = #{price,jdbcType=DOUBLE},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.example.lab1.entity.StockPriceTime" >
+    update stock_price_time
+    set stock_code = #{stockCode,jdbcType=CHAR},
+      time = #{time,jdbcType=TIMESTAMP},
+      price = #{price,jdbcType=DOUBLE}
+    where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

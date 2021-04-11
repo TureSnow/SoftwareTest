@@ -83,15 +83,6 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="getAllTerm" resultMap="BaseResultMap">
-    select * from term
-  </select>
-  <select id="getTermByTermCode" resultType="Term" parameterType="java.lang.String" >
-    select
-    *
-    from term
-    where code = #{termCode}
-  </select>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select 
     <include refid="Base_Column_List" />

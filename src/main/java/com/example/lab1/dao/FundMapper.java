@@ -18,9 +18,7 @@ public interface FundMapper {
 
     List<Fund> selectByExample(FundExample example);
 
-    List<Fund> getAllFund();
-
-    Fund selectByCode(String code);
+    Fund selectByPrimaryKey(Integer id);
 
     int updateByExampleSelective(@Param("record") Fund record, @Param("example") FundExample example);
 

@@ -1,6 +1,7 @@
 package com.example.lab1.entity;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class CustomerTermExample {
@@ -364,52 +365,52 @@ public class CustomerTermExample {
             return (Criteria) this;
         }
 
-        public Criteria andTimeEqualTo(Integer value) {
+        public Criteria andTimeEqualTo(Date value) {
             addCriterion("time =", value, "time");
             return (Criteria) this;
         }
 
-        public Criteria andTimeNotEqualTo(Integer value) {
+        public Criteria andTimeNotEqualTo(Date value) {
             addCriterion("time <>", value, "time");
             return (Criteria) this;
         }
 
-        public Criteria andTimeGreaterThan(Integer value) {
+        public Criteria andTimeGreaterThan(Date value) {
             addCriterion("time >", value, "time");
             return (Criteria) this;
         }
 
-        public Criteria andTimeGreaterThanOrEqualTo(Integer value) {
+        public Criteria andTimeGreaterThanOrEqualTo(Date value) {
             addCriterion("time >=", value, "time");
             return (Criteria) this;
         }
 
-        public Criteria andTimeLessThan(Integer value) {
+        public Criteria andTimeLessThan(Date value) {
             addCriterion("time <", value, "time");
             return (Criteria) this;
         }
 
-        public Criteria andTimeLessThanOrEqualTo(Integer value) {
+        public Criteria andTimeLessThanOrEqualTo(Date value) {
             addCriterion("time <=", value, "time");
             return (Criteria) this;
         }
 
-        public Criteria andTimeIn(List<Integer> values) {
+        public Criteria andTimeIn(List<Date> values) {
             addCriterion("time in", values, "time");
             return (Criteria) this;
         }
 
-        public Criteria andTimeNotIn(List<Integer> values) {
+        public Criteria andTimeNotIn(List<Date> values) {
             addCriterion("time not in", values, "time");
             return (Criteria) this;
         }
 
-        public Criteria andTimeBetween(Integer value1, Integer value2) {
+        public Criteria andTimeBetween(Date value1, Date value2) {
             addCriterion("time between", value1, value2, "time");
             return (Criteria) this;
         }
 
-        public Criteria andTimeNotBetween(Integer value1, Integer value2) {
+        public Criteria andTimeNotBetween(Date value1, Date value2) {
             addCriterion("time not between", value1, value2, "time");
             return (Criteria) this;
         }

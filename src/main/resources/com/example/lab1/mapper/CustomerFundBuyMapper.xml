@@ -2,6 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.example.lab1.dao.CustomerFundBuyMapper" >
   <resultMap id="BaseResultMap" type="com.example.lab1.entity.CustomerFundBuy" >
+    <id column="id" property="id" jdbcType="INTEGER" />
     <result column="customer_id" property="customerId" jdbcType="INTEGER" />
     <result column="fund_code" property="fundCode" jdbcType="CHAR" />
     <result column="time_buy" property="timeBuy" jdbcType="TIMESTAMP" />
@@ -67,7 +68,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-    customer_id, fund_code, time_buy, principal, total
+    id, customer_id, fund_code, time_buy, principal, total
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.example.lab1.entity.CustomerFundBuyExample" >
     select
@@ -83,16 +84,16 @@
       order by ${orderByClause}
     </if>
   </select>
-  <update id="updateAfterSell" parameterType="com.example.lab1.entity.CustomerFundBuy">
-    update customer_fund_buy
-    set
-    time_buy=#{record.timeBuy},
-    principal=#{record.principal},
-    total=#{record.total}
-    where
-        customer_id=#{record.customerId},
-        fund_code=#{record.fundCode}
-  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from customer_fund_buy
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from customer_fund_buy
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
   <delete id="deleteByExample" parameterType="com.example.lab1.entity.CustomerFundBuyExample" >
     delete from customer_fund_buy
     <if test="_parameter != null" >
@@ -100,12 +101,18 @@
     </if>
   </delete>
   <insert id="insert" parameterType="com.example.lab1.entity.CustomerFundBuy" >
+    <selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER" >
+      SELECT LAST_INSERT_ID()
+    </selectKey>
     insert into customer_fund_buy (customer_id, fund_code, time_buy, 
       principal, total)
     values (#{customerId,jdbcType=INTEGER}, #{fundCode,jdbcType=CHAR}, #{timeBuy,jdbcType=TIMESTAMP}, 
       #{principal,jdbcType=DOUBLE}, #{total,jdbcType=DOUBLE})
   </insert>
   <insert id="insertSelective" parameterType="com.example.lab1.entity.CustomerFundBuy" >
+    <selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER" >
+      SELECT LAST_INSERT_ID()
+    </selectKey>
     insert into customer_fund_buy
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="customerId != null" >
@@ -151,6 +158,9 @@
   <update id="updateByExampleSelective" parameterType="map" >
     update customer_fund_buy
     <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
       <if test="record.customerId != null" >
         customer_id = #{record.customerId,jdbcType=INTEGER},
       </if>
@@ -173,7 +183,8 @@
   </update>
   <update id="updateByExample" parameterType="map" >
     update customer_fund_buy
-    set customer_id = #{record.customerId,jdbcType=INTEGER},
+    set id = #{record.id,jdbcType=INTEGER},
+      customer_id = #{record.customerId,jdbcType=INTEGER},
       fund_code = #{record.fundCode,jdbcType=CHAR},
       time_buy = #{record.timeBuy,jdbcType=TIMESTAMP},
       principal = #{record.principal,jdbcType=DOUBLE},
@@ -181,5 +192,35 @@
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.example.lab1.entity.CustomerFundBuy" >
+    update customer_fund_buy
+    <set >
+      <if test="customerId != null" >
+        customer_id = #{customerId,jdbcType=INTEGER},
+      </if>
+      <if test="fundCode != null" >
+        fund_code = #{fundCode,jdbcType=CHAR},
+      </if>
+      <if test="timeBuy != null" >
+        time_buy = #{timeBuy,jdbcType=TIMESTAMP},
+      </if>
+      <if test="principal != null" >
+        principal = #{principal,jdbcType=DOUBLE},
+      </if>
+      <if test="total != null" >
+        total = #{total,jdbcType=DOUBLE},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.example.lab1.entity.CustomerFundBuy" >
+    update customer_fund_buy
+    set customer_id = #{customerId,jdbcType=INTEGER},
+      fund_code = #{fundCode,jdbcType=CHAR},
+      time_buy = #{timeBuy,jdbcType=TIMESTAMP},
+      principal = #{principal,jdbcType=DOUBLE},
+      total = #{total,jdbcType=DOUBLE}
+    where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

@@ -4,9 +4,7 @@ import com.example.lab1.entity.Stock;
 import com.example.lab1.entity.StockExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
-import org.springframework.stereotype.Component;
 
-@Component
 public interface StockMapper {
     int countByExample(StockExample example);
 

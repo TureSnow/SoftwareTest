@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.Date;
 
 public class StockPriceTime implements Serializable {
+    private Integer id;
+
     private String stockCode;
 
     private Date time;
@@ -11,6 +13,14 @@ public class StockPriceTime implements Serializable {
     private Double price;
 
     private static final long serialVersionUID = 1L;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
     public String getStockCode() {
         return stockCode;
@@ -48,7 +58,8 @@ public class StockPriceTime implements Serializable {
             return false;
         }
         StockPriceTime other = (StockPriceTime) that;
-        return (this.getStockCode() == null ? other.getStockCode() == null : this.getStockCode().equals(other.getStockCode()))
+        return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
+            && (this.getStockCode() == null ? other.getStockCode() == null : this.getStockCode().equals(other.getStockCode()))
             && (this.getTime() == null ? other.getTime() == null : this.getTime().equals(other.getTime()))
             && (this.getPrice() == null ? other.getPrice() == null : this.getPrice().equals(other.getPrice()));
     }
@@ -57,6 +68,7 @@ public class StockPriceTime implements Serializable {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
+        result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
         result = prime * result + ((getStockCode() == null) ? 0 : getStockCode().hashCode());
         result = prime * result + ((getTime() == null) ? 0 : getTime().hashCode());
         result = prime * result + ((getPrice() == null) ? 0 : getPrice().hashCode());
@@ -69,6 +81,7 @@ public class StockPriceTime implements Serializable {
         sb.append(getClass().getSimpleName());
         sb.append(" [");
         sb.append("Hash = ").append(hashCode());
+        sb.append(", id=").append(id);
         sb.append(", stockCode=").append(stockCode);
         sb.append(", time=").append(time);
         sb.append(", price=").append(price);

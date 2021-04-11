@@ -82,13 +82,11 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="getAllFund" resultMap="BaseResultMap" parameterType="com.example.lab1.entity.FundExample" >
-    select * from fund
-  </select>
-  <select id="selectByCode" resultMap="Fund" parameterType="java.lang.String" >
-    select *
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
     from fund
-    where code = #{code}
+    where id = #{id,jdbcType=INTEGER}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from fund

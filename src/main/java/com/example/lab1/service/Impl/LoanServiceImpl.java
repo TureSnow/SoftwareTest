@@ -1,14 +1,11 @@
 package com.example.lab1.service.Impl;
 
-import com.example.lab1.dao.CardsDao;
-import com.example.lab1.dao.CustomersDao;
-import com.example.lab1.dao.LoansDao;
-import com.example.lab1.dao.RepayPlansDao;
-import com.example.lab1.entity.Card;
-import com.example.lab1.entity.Customer;
-import com.example.lab1.entity.Loan;
-import com.example.lab1.entity.RepayPlan;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.lab1.dao.CardMapper;
+import com.example.lab1.dao.CustomerMapper;
+import com.example.lab1.dao.LoanMapper;
+import com.example.lab1.dao.RepayPlanMapper;
+import com.example.lab1.entity.*;
+import com.example.lab1.service.LoanService;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
@@ -18,24 +15,18 @@ import java.util.logging.Logger;
 
 
 @Service
-public class LoanServiceImpl implements com.example.lab1.service.LoanService {
-    LoansDao loansDao;
-    CustomersDao customersDao;
-    RepayPlansDao repayPlansDao;
-    CardsDao cardsDao;
+public class LoanServiceImpl implements LoanService {
+    LoanMapper loanMapper;
+    CustomerMapper customerMapper;
+    RepayPlanMapper repayPlanMapper;
+    CardMapper cardMapper;
     Logger logger=Logger.getLogger(LoanServiceImpl.class.getName());
-    @Autowired
-    public LoanServiceImpl(LoansDao loansDao, CustomersDao customersDao, RepayPlansDao repayPlansDao, CardsDao cardsDao) {
-        this.loansDao = loansDao;
-        this.customersDao = customersDao;
-        this.repayPlansDao = repayPlansDao;
-        this.cardsDao = cardsDao;
-    }
 
-    @Override
     public String autoRepay() {
         //先找出所有未还账单
-        List<RepayPlan> unPayPlanList=repayPlansDao.findUnPayPlans();
+        RepayPlanExample repayPlanExample=new RepayPlanExample();
+        repayPlanExample.or().andStatusLessThan(3);
+        List<RepayPlan> unPayPlanList = repayPlanMapper.selectByExample(repayPlanExample);
         Date now=new Date();
 
         for (int i = 0; i < unPayPlanList.size(); i++) {
@@ -56,7 +47,7 @@ public class LoanServiceImpl implements com.example.lab1.service.LoanService {
                     unPayPlanList.get(i).setFine(0.0);
                 }else{
                     //余额无法归还罚金，更新数据后，直接退出
-                    repayPlansDao.updateRepayPlan(unPayPlanList.get(i));
+                    repayPlanMapper.updateByPrimaryKey(unPayPlanList.get(i));
                 }
             }
 
@@ -68,18 +59,61 @@ public class LoanServiceImpl implements com.example.lab1.service.LoanService {
                 unPayPlanList.get(i).setRemainInterest((double) 0);
                 unPayPlanList.get(i).setRemainPrincipal((double) 0);
             }
-
             //更新数据库
-            repayPlansDao.updateRepayPlan(unPayPlanList.get(i));
+            repayPlanMapper.updateByPrimaryKey(unPayPlanList.get(i));
+            //repayPlansDao.updateRepayPlan(unPayPlanList.get(i));
         }
 
         return "success";
     }
 
     public Loan findLoanByIouNumber(String iouNum){
-        Loan loan=loansDao.findLoanByIouNumber(iouNum);
+        LoanExample example=new LoanExample();
+        example.or().andIouNumEqualTo(iouNum);
+        List<Loan> loans = loanMapper.selectByExample(example);
+        Loan loan=loans.size()==0?null:loans.get(0);
         loan.setDueBalance(calculateDueBalance(iouNum));
         return loan;
+    }
+
+    public List<Card> findCardsByCustomerCode(String customerCode){
+        CardExample example=new CardExample();
+        example.or().andCustomerCodeEqualTo(customerCode);
+        return cardMapper.selectByExample(example);
+    }
+
+    public Card findCardByAccountNum(String accountNum){
+        CardExample example=new CardExample();
+        example.or().andAccountNumEqualTo(accountNum);
+        List<Card> cards = cardMapper.selectByExample(example);
+        return cards.size()==0?null:cards.get(0);
+    }
+
+    public void updateCardBalance(String accountNum,double balance){
+        Card card = findCardByAccountNum(accountNum);
+        card.setBalance(balance);
+        cardMapper.updateByPrimaryKey(card);
+    }
+
+    public Customer findCustomerByIdNumber(String idNumber){
+        return findCustomerByIdNumber(idNumber);
+    }
+
+    public List<Loan> findLoansByCustomerCode(String customerCode){
+        List<Loan> loanList=findLoansByCustomerCode(customerCode);
+
+        for (int i = 0; i < loanList.size(); i++) {
+            loanList.get(i).setDueBalance(calculateDueBalance(loanList.get(i).getIouNum()));
+
+            logger.info("过期余额为"+loanList.get(i).getDueBalance());
+        }
+        return loanList;
+    }
+
+    public List<Loan> findLoansByAccountNum(String accountNum){
+        LoanExample example=new LoanExample();
+        example.or().andAccountNumEqualTo(accountNum);
+        return loanMapper.selectByExample(example);
     }
 
     /**
@@ -89,9 +123,9 @@ public class LoanServiceImpl implements com.example.lab1.service.LoanService {
     private boolean canRepay(String iouNum,double amount){
 
         //通过找到那笔贷款，找出贷款人和还款人的银行卡号
-        Loan loan=loansDao.findLoanByIouNumber(iouNum);
+        Loan loan=findLoanByIouNumber(iouNum);
         String customerCode=loan.getCustomerCode();
-        List<Card> cardList=cardsDao.findCardsByCustomerCode(customerCode);
+        List<Card> cardList=findCardsByCustomerCode(customerCode);
 
         for (int i = 0; i < cardList.size(); i++) {
             //减少浮点数偏差
@@ -99,11 +133,11 @@ public class LoanServiceImpl implements com.example.lab1.service.LoanService {
                 cardList.get(i).setBalance(cardList.get(i).getBalance()-amount);
                 //找到先前贷款机构，把钱还回去
                 logger.info("贷款机构银行卡 "+loan.getInstitutionAccountNum());
-                Card card=cardsDao.findCardByAccountNum(loan.getInstitutionAccountNum());
+                Card card=findCardByAccountNum(loan.getInstitutionAccountNum());
                 logger.info("先前的贷款机构为"+card);
                 //更新回数据库
-                cardsDao.updateCardBalance(cardList.get(i).getAccountNum(),cardList.get(i).getBalance());
-                cardsDao.updateCardBalance(loan.getInstitutionAccountNum(),card.getBalance()+amount);
+                updateCardBalance(cardList.get(i).getAccountNum(),cardList.get(i).getBalance());
+                updateCardBalance(loan.getInstitutionAccountNum(),card.getBalance()+amount);
                 return true;
             }
         }
@@ -121,7 +155,7 @@ public class LoanServiceImpl implements com.example.lab1.service.LoanService {
         logger.info("尝试还款开始");
         if (canRepay(iouNum,fine)){
             logger.info("尝试还款结束");
-            List<RepayPlan> repayPlanList=repayPlansDao.findRepayPlansByIouNum(iouNum);
+            List<RepayPlan> repayPlanList=findRepayPlansByIouNum(iouNum);
             for (int i = 0; i < repayPlanList.size(); i++) {
                 logger.info("归还罚金 还款计划为 "+repayPlanList.get(i));
                 if (repayPlanList.get(i).getStatus()==1){
@@ -129,8 +163,8 @@ public class LoanServiceImpl implements com.example.lab1.service.LoanService {
                     repayPlanList.get(i).setFine((double) 0);
                     //更新到数据库
                     logger.info("更新前的还款计划 "+repayPlanList.get(i));
-                    repayPlansDao.updateRepayPlan(repayPlanList.get(i));
-                    logger.info("更新后的还款计划 "+repayPlansDao.findRepayPlanById(repayPlanList.get(i).getId()));
+                    repayPlanMapper.updateByPrimaryKey(repayPlanList.get(i));
+                    logger.info("更新后的还款计划 "+repayPlanMapper.selectByPrimaryKey(repayPlanList.get(i).getId()));
                 }
             }
             return "repay fine success";
@@ -147,7 +181,7 @@ public class LoanServiceImpl implements com.example.lab1.service.LoanService {
      */
     private double calculateFine(String iouNum){
         logger.info("开始计算罚金");
-        List<RepayPlan> repayPlanList=repayPlansDao.findRepayPlansByIouNum(iouNum);
+        List<RepayPlan> repayPlanList=findRepayPlansByIouNum(iouNum);
         logger.info("计算罚金完毕");
         double sum=0;
         for (int i = 0; i < repayPlanList.size(); i++) {
@@ -157,7 +191,12 @@ public class LoanServiceImpl implements com.example.lab1.service.LoanService {
         }
         return sum;
     }
-
+    public void updateRepayPlan(RepayPlan plan){
+        repayPlanMapper.updateByPrimaryKey(plan);
+    }
+    /*public RepayPlan findRepayPlanById(int id){
+        return repayPlanMapper.selectByPrimaryKey(id);
+    }*/
     /**
      * 通过借据号计算逾期金额(计算时若发现有贷款到期，将其设为1)
      * 逾期金额：remainAmount，不包括fine
@@ -165,7 +204,7 @@ public class LoanServiceImpl implements com.example.lab1.service.LoanService {
      * @return
      */
     private double calculateDueBalance(String iouNum){
-        List<RepayPlan> repayPlanList=repayPlansDao.findRepayPlansByIouNum(iouNum);
+        List<RepayPlan> repayPlanList=findRepayPlansByIouNum(iouNum);
 
         double sum=0;
         Date now=new Date();
@@ -183,10 +222,10 @@ public class LoanServiceImpl implements com.example.lab1.service.LoanService {
                 repayPlanList.get(i).setFine(repayPlanList.get(i).getRemainAmount()*0.05);
                 sum+=repayPlanList.get(i).getRemainAmount();
                 logger.info("修改前还款计划"+repayPlanList.get(i));
-                repayPlansDao.updateRepayPlan(repayPlanList.get(i));
+                updateRepayPlan(repayPlanList.get(i));
 
-                logger.info("修改后还款计划"+repayPlansDao.findRepayPlanById(repayPlanList.get(i).getId()));
-                if (repayPlansDao.findRepayPlanById(repayPlanList.get(i).getId()).getStatus()!=1){
+                logger.info("修改后还款计划"+findRepayPlanById(repayPlanList.get(i).getId()));
+                if (findRepayPlanById(repayPlanList.get(i).getId()).getStatus()!=1){
                     logger.warning("警告：数据库修改失败");
                 }
             }
@@ -195,30 +234,15 @@ public class LoanServiceImpl implements com.example.lab1.service.LoanService {
         return sum;
     }
 
-
-    public Customer findCustomerByIdNumber(String idNumber){
-        return customersDao.findCustomerByIdNumber(idNumber);
-    }
-
-    public List<Loan> findLoansByCustomerCode(String customerCode){
-        List<Loan> loanList=loansDao.findLoansByCustomerCode(customerCode);
-
-        for (int i = 0; i < loanList.size(); i++) {
-            loanList.get(i).setDueBalance(calculateDueBalance(loanList.get(i).getIouNum()));
-
-            logger.info("过期余额为"+loanList.get(i).getDueBalance());
-        }
-        return loanList;
-    }
     public RepayPlan findRepayPlanById(int id){
-        return repayPlansDao.findRepayPlanById(id);
+        return findRepayPlanById(id);
     }
 
     public List<RepayPlan> findRepayPlansByIouNum(String iouNum){
-        return repayPlansDao.findRepayPlansByIouNum(iouNum);
+        return findRepayPlansByIouNum(iouNum);
     }
     public List<RepayPlan> findUnPayPlans(String iouNum){
-        List<RepayPlan> repayPlanList=repayPlansDao.findRepayPlansByIouNum(iouNum);
+        List<RepayPlan> repayPlanList=findRepayPlansByIouNum(iouNum);
         List<RepayPlan> res=new ArrayList<>();
         for (int i = 0; i < repayPlanList.size(); i++) {
             if (repayPlanList.get(i).getStatus()!=3){//返回未还的账单
@@ -247,7 +271,7 @@ public class LoanServiceImpl implements com.example.lab1.service.LoanService {
         double amount=amountToPay;
 
 
-        List<RepayPlan> repayPlanList=repayPlansDao.findRepayPlansByIouNum(iouNum);
+        List<RepayPlan> repayPlanList=findRepayPlansByIouNum(iouNum);
 
 
         for (int i = 0; i < repayPlanList.size(); i++) {
@@ -266,7 +290,7 @@ public class LoanServiceImpl implements com.example.lab1.service.LoanService {
                             repayPlanList.get(i).setRemainAmount(repayPlanList.get(i).getRemainAmount()-amount);
                             amount=0;
                         }
-                        repayPlansDao.updateRepayPlan(repayPlanList.get(i));
+                        updateRepayPlan(repayPlanList.get(i));
                     }
                 }
             }
@@ -290,7 +314,7 @@ public class LoanServiceImpl implements com.example.lab1.service.LoanService {
 
         double amount=calculateALLRepayment(iouNum);//计算要还款的总额
         if (canRepay(iouNum,amount)){
-            List<RepayPlan> repayPlanList=repayPlansDao.findRepayPlansByIouNum(iouNum);
+            List<RepayPlan> repayPlanList=findRepayPlansByIouNum(iouNum);
             for (int i = 0; i < repayPlanList.size(); i++) {
                 //如果还款时间在下个月之前，且未还款
                 if (repayPlanList.get(i).getPlanDate().before(getOneMonthAfter())&&repayPlanList.get(i).getStatus()!=3){
@@ -299,7 +323,7 @@ public class LoanServiceImpl implements com.example.lab1.service.LoanService {
                     repayPlanList.get(i).setRemainInterest((double) 0);
                     repayPlanList.get(i).setRemainPrincipal((double) 0);
                     //更新数据库
-                    repayPlansDao.updateRepayPlan(repayPlanList.get(i));
+                    updateRepayPlan(repayPlanList.get(i));
                 }
             }
             res.put("message","success");
@@ -319,7 +343,7 @@ public class LoanServiceImpl implements com.example.lab1.service.LoanService {
     double calculateALLRepayment(String iouNum){
 
         double sum=0;
-        List<RepayPlan> repayPlanList=repayPlansDao.findRepayPlansByIouNum(iouNum);
+        List<RepayPlan> repayPlanList=findRepayPlansByIouNum(iouNum);
         for (RepayPlan repayPlan : repayPlanList) {
             //如果还款时间在下个月之前，且未还款
             if (repayPlan.getPlanDate().before(getOneMonthAfter()) && repayPlan.getStatus() != 3) {
@@ -360,10 +384,10 @@ public class LoanServiceImpl implements com.example.lab1.service.LoanService {
      */
     public boolean payFineOfCard(String accountNum){
         //找到银行卡中的余额
-        Card card=cardsDao.findCardByAccountNum(accountNum);
+        Card card=findCardByAccountNum(accountNum);
 
         //找到该卡的所有贷款
-        List<Loan> loanList=loansDao.findLoansByAccountNum(accountNum);
+        List<Loan> loanList=findLoansByAccountNum(accountNum);
         double allFine=0;
         for (int i = 0; i < loanList.size(); i++) {
             allFine+=calculateFine(loanList.get(i).getIouNum());
@@ -381,10 +405,10 @@ public class LoanServiceImpl implements com.example.lab1.service.LoanService {
 
     }
     public double getUnPayLoanAmount(String accountNum){
-        List<Loan> loanList=loansDao.findLoansByAccountNum(accountNum);
+        List<Loan> loanList=findLoansByAccountNum(accountNum);
         double sum=0;
         for(Loan loan:loanList){
-            List<RepayPlan> repayPlanList=repayPlansDao.findRepayPlansByIouNum(loan.getIouNum());
+            List<RepayPlan> repayPlanList=findRepayPlansByIouNum(loan.getIouNum());
             for (int i = 0; i < repayPlanList.size(); i++) {
                 sum+=repayPlanList.get(i).getRemainAmount()+repayPlanList.get(i).getFine();
             }

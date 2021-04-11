@@ -20,37 +20,35 @@ public class ProductServiceImpl implements ProductService {
     private CustomerFundSellMapper customerFundSellMapper;
     private TermMapper termMapper;
     private CustomerTermMapper customerTermMapper;
-    private CardsDao cardsDao;
-    private LoansDao loansDao;
-    private CustomersDao customersDao;
+    private CardMapper cardMapper;
+    private LoanMapper loanMapper;
+    private CustomerMapper customerMapper;
     private LoanServiceImpl loanServiceImpl;
-    public ProductServiceImpl(StockMapper stockMapper, CardsDao cardsDao, LoansDao loansDao) {
-        this.stockMapper = stockMapper;
-        this.cardsDao = cardsDao;
-        this.loansDao = loansDao;
-    }
+    private CustomerServiceImpl customerService;
+
     //检验用户数据
     //todo:考虑加密
     public boolean checkCustomerAndCard(String customerCode, String idNumber, String accountNum, String password){
-        Customer customer = customersDao.findCustomerByCode(customerCode);
+        Customer customer = customerService.getCustomerByCode(customerCode);
         if (customer==null)
             return false;
         if (!customer.getIdNumber().equals(idNumber))
             return false;
-        Card card = cardsDao.findCardByAccountNum(accountNum);
+        Card card = loanServiceImpl.findCardByAccountNum(accountNum);
         if (card==null)
             return false;
         if (!card.getPassword().equals(password)||!card.getCustomerCode().equals(customerCode))
             return false;
         return true;
     }
+
     @Override
     public int getAccountLv(String accountNum) {
-        Card card = cardsDao.findCardByAccountNum(accountNum);
+        Card card = loanServiceImpl.findCardByAccountNum(accountNum);
         if (card==null)
             return -1;
         double balance=card.getBalance();
-        List<Loan> loansList = loansDao.findLoansByAccountNum(accountNum);
+        List<Loan> loansList = loanServiceImpl.findLoansByAccountNum(accountNum);
         double loan=0;
         if (loansList.size()!=0){
             for(int i=0;i<loansList.size();i++){
@@ -66,19 +64,6 @@ public class ProductServiceImpl implements ProductService {
             return 3;
     }
 
-
-
-
-    @Override
-    public List<Fund> getAllFund() {
-        return fundMapper.getAllFund();
-    }
-
-    @Override
-    public Fund getFundByFundCode(String fundCode) {
-        return fundMapper.selectByCode(fundCode);
-    }
-
     @Override
     public int buyFund(String fundCode,String customerCode, String idNumber,
                        String accountNum, String password, double amount) {
@@ -92,13 +77,13 @@ public class ProductServiceImpl implements ProductService {
         //先归还罚金
         if(!loanServiceImpl.payFineOfCard(accountNum))
             return -1;
-        Card card = cardsDao.findCardByAccountNum(accountNum);
+        Card card = loanServiceImpl.findCardByAccountNum(accountNum);
         if(card.getBalance()>amount){
             //更新卡余额
-            cardsDao.updateCardBalance(accountNum,card.getBalance()-amount);
+            loanServiceImpl.updateCardBalance(accountNum,card.getBalance()-amount);
             //添加基金购买记录
             //考虑：如果之前已经买过？
-            Customer customer = customersDao.findCustomerByCode(customerCode);
+            Customer customer = customerService.getCustomerByCode(customerCode);
             CustomerFundBuyExample example=new CustomerFundBuyExample();
             example.or().andCustomerIdEqualTo(customer.getId()).andFundCodeEqualTo(fundCode);
             List<CustomerFundBuy> buys = customerFundBuyMapper.selectByExample(example);
@@ -109,7 +94,7 @@ public class ProductServiceImpl implements ProductService {
                 buy.setPrincipal(pre+amount);
                 buy.setTotal(pre+amount);
                 buy.setTimeBuy(new Date());
-                customerFundBuyMapper.updateAfterSell(buy);
+                customerFundBuyMapper.updateByPrimaryKey(buy);
             }else {
                 //新增购买记录
                 CustomerFundBuy customerFundBuy= new CustomerFundBuy();
@@ -130,8 +115,8 @@ public class ProductServiceImpl implements ProductService {
                         String accountNum, String password, double amount) {
         if (!checkCustomerAndCard(customerCode,idNumber,accountNum,password))
             return -1;
-        Card card = cardsDao.findCardByAccountNum(accountNum);
-        Customer customer = customersDao.findCustomerByCode(customerCode);
+        Card card = loanServiceImpl.findCardByAccountNum(accountNum);
+        Customer customer = customerService.getCustomerByCode(customerCode);
         CustomerFundBuyExample customerFundBuyExample = new CustomerFundBuyExample();
         customerFundBuyExample.or().andCustomerIdEqualTo(customer.getId()).andFundCodeEqualTo(fundCode);
         List<CustomerFundBuy> Buys = customerFundBuyMapper.selectByExample(customerFundBuyExample);
@@ -146,9 +131,9 @@ public class ProductServiceImpl implements ProductService {
             double pre=buy.getTotal();
             buy.setTotal(pre-amount);
             buy.setPrincipal(pre-amount);
-            customerFundBuyMapper.updateAfterSell(buy);
+            customerFundBuyMapper.updateByPrimaryKey(buy);
             //加入card balance
-            cardsDao.updateCardBalance(accountNum,card.getBalance()+amount);
+            loanServiceImpl.updateCardBalance(accountNum,card.getBalance()+amount);
             //新增fund sell记录
             CustomerFundSell sell= new CustomerFundSell();
             sell.setCustomerId(customer.getId());
@@ -160,10 +145,16 @@ public class ProductServiceImpl implements ProductService {
         }
         return -1;
     }
+    public Fund selectByCode(String fundCode){
+        FundExample example=new FundExample();
+        example.or().andCodeEqualTo(fundCode);
+        List<Fund> funds = fundMapper.selectByExample(example);
+        return funds.size()==0?null:funds.get(0);
+    }
     //查询某一客户对某一基金的持有量
     public MyFund queryByCustomerIdAndFundCode(int customerId,String fundCode){
         CustomerFundBuyExample example=new CustomerFundBuyExample();
-        Fund fund = fundMapper.selectByCode(fundCode);
+        Fund fund = selectByCode(fundCode);
         example.or().andCustomerIdEqualTo(customerId).andFundCodeEqualTo(fundCode);
         List<CustomerFundBuy> buys = customerFundBuyMapper.selectByExample(example);
         MyFund res;
@@ -176,7 +167,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     public List<MyFund> queryFundByCustomerCode(String customerCode){
-        Customer customer = customersDao.findCustomerByCode(customerCode);
+        Customer customer = customerService.getCustomerByCode(customerCode);
         if (customer==null)
             return null;
         List<Fund> funds = fundMapper.selectByExample(new FundExample());
@@ -194,16 +185,11 @@ public class ProductServiceImpl implements ProductService {
 
 
 
-
-
-    @Override
-    public List<Term> getAllTerm() {
-        return termMapper.getAllTerm();
-    }
-
-    @Override
-    public Term getTermByTermCode(String termCode) {
-        return termMapper.getTermByTermCode(termCode);
+    public Term getTermByTermCode(String termCode){
+        TermExample example=new TermExample();
+        example.or().andCodeEqualTo(termCode);
+        List<Term> terms = termMapper.selectByExample(example);
+        return terms.size()==0?null:terms.get(0);
     }
 
     @Override
@@ -213,13 +199,13 @@ public class ProductServiceImpl implements ProductService {
         //先归还罚金
         if(!loanServiceImpl.payFineOfCard(accountNum))
             return -1;
-        Card card = cardsDao.findCardByAccountNum(accountNum);
-        Term term = termMapper.getTermByTermCode(termCode);
-        Customer customer = customersDao.findCustomerByCode(customerCode);
+        Card card = loanServiceImpl.findCardByAccountNum(accountNum);
+        Term term = getTermByTermCode(termCode);
+        Customer customer = customerService.getCustomerByCode(customerCode);
         if(card.getBalance()<amount)
             return -1;
         //更新卡余额
-        cardsDao.updateCardBalance(accountNum,card.getBalance()-amount);
+        loanServiceImpl.updateCardBalance(accountNum,card.getBalance()-amount);
         //添加定期购买记录
         CustomerTerm customerTerm = new CustomerTerm();
         customerTerm.setCustomerId(customer.getId());
@@ -231,7 +217,7 @@ public class ProductServiceImpl implements ProductService {
 
     public MyTerm queryTermByCustomerIdAndTermCode(int customerId,String termCode){
         CustomerTermExample example=new CustomerTermExample();
-        Term term = termMapper.getTermByTermCode(termCode);
+        Term term = getTermByTermCode(termCode);
         if (term==null)
             return null;
         example.or().andCustomerIdEqualTo(customerId).andTermCodeEqualTo(termCode);
@@ -250,7 +236,7 @@ public class ProductServiceImpl implements ProductService {
     }
     @Override
     public List<MyTerm> queryTermByCustomerCode(String customerCode){
-        Customer customer = customersDao.findCustomerByCode(customerCode);
+        Customer customer = customerService.getCustomerByCode(customerCode);
         if (customer==null)
             return null;
         List<Term> terms = termMapper.selectByExample(new TermExample());
@@ -270,15 +256,6 @@ public class ProductServiceImpl implements ProductService {
 
 
 
-
-    @Override
-    public List<Stock> getAllStock() {
-        StockExample stockExample=new StockExample();
-        stockExample.or();
-        return stockMapper.selectByExample(stockExample);
-    }
-
-    @Override
     public Stock getStockByStockCode(String stockCode) {
         StockExample stockExample = new StockExample();
         stockExample.or().andCodeEqualTo(stockCode);
@@ -298,15 +275,15 @@ public class ProductServiceImpl implements ProductService {
         //先归还罚金
         if(!loanServiceImpl.payFineOfCard(accountNum))
             return -1;
-        Card card = cardsDao.findCardByAccountNum(accountNum);
-        Customer customer = customersDao.findCustomerByCode(customerCode);
+        Card card = loanServiceImpl.findCardByAccountNum(accountNum);
+        Customer customer = customerService.getCustomerByCode(customerCode);
         //计算总价
         double single=getLeastStockPrice(stockCode);
         double total=single*amount;
         if (card.getBalance()>total){
             //购买股票
             //更新card balance
-            cardsDao.updateCardBalance(accountNum,card.getBalance()-total);
+            loanServiceImpl.updateCardBalance(accountNum,card.getBalance()-total);
             //新增股票买入记录
             CustomerStockBuy buy=new CustomerStockBuy();
             buy.setAmount(amount);
@@ -317,10 +294,12 @@ public class ProductServiceImpl implements ProductService {
         }
         return -1;
     }
+
+
     //获得股票最新价格
     public double getLeastStockPrice(String stockCode){
-        List<StockPriceTime> stockPriceTimes = stockPriceTimeMapper.selectByStockCode(stockCode);
-        return stockPriceTimes.get(0).getPrice();
+        List<StockPriceTime> stockPriceTimes = queryStockPrice(stockCode);
+        return stockPriceTimes.size()==0?0:stockPriceTimes.get(0).getPrice();
     }
 
     //获得目前股票持仓情况
@@ -349,7 +328,7 @@ public class ProductServiceImpl implements ProductService {
         if (!checkCustomerAndCard(customerCode,idNumber,accountNum,password))
             return -1;
         //首先计算目前自己持仓情况
-        Customer customer = customersDao.findCustomerByCode(customerCode);
+        Customer customer = customerService.getCustomerByCode(customerCode);
         int have=getStockNowAccount(customer.getId(),stockCode);
         if (amount<=have){
             //满足抛售股票资格
@@ -362,8 +341,8 @@ public class ProductServiceImpl implements ProductService {
             customerStockSellMapper.insert(sell);
             //更新账户余额
             double profit = amount*getLeastStockPrice(stockCode);
-            Card card = cardsDao.findCardByAccountNum(accountNum);
-            cardsDao.updateCardBalance(accountNum,profit+card.getBalance());
+            Card card = loanServiceImpl.findCardByAccountNum(accountNum);
+            loanServiceImpl.updateCardBalance(accountNum,profit+card.getBalance());
             return 1;
         }
         return -1;
@@ -371,12 +350,14 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<StockPriceTime> queryStockPrice(String stockCode) {
-        return stockPriceTimeMapper.selectByStockCode(stockCode);
+        StockPriceTimeExample example=new StockPriceTimeExample();
+        example.or().andStockCodeEqualTo(stockCode);
+        return stockPriceTimeMapper.selectByExample(example);
     }
 
     @Override
     public double queryStockPriceInTime(String stockCode, Date time) {
-        List<StockPriceTime> stockPriceTimes = stockPriceTimeMapper.selectByStockCode(stockCode);
+        List<StockPriceTime> stockPriceTimes = queryStockPrice(stockCode);
         if (stockPriceTimes.size()==0)
             return -1;
         double price=0;
@@ -396,7 +377,7 @@ public class ProductServiceImpl implements ProductService {
     public List<MyStock> queryStockByCustomerCode(String customerCode) {
         StockExample example=new StockExample();
         List<Stock> stocks = stockMapper.selectByExample(example);
-        Customer customer = customersDao.findCustomerByCode(customerCode);
+        Customer customer = customerService.getCustomerByCode(customerCode);
         if (customer==null)
             return null;
         List<MyStock> iHave=new LinkedList<>();

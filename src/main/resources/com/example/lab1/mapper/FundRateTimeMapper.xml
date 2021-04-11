@@ -99,17 +99,20 @@
     </if>
   </delete>
   <insert id="insert" parameterType="com.example.lab1.entity.FundRateTime" >
-    insert into fund_rate_time (id, fund_code, time, 
-      rate)
-    values (#{id,jdbcType=INTEGER}, #{fundCode,jdbcType=CHAR}, #{time,jdbcType=TIMESTAMP}, 
-      #{rate,jdbcType=DOUBLE})
+    <selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER" >
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into fund_rate_time (fund_code, time, rate
+      )
+    values (#{fundCode,jdbcType=CHAR}, #{time,jdbcType=TIMESTAMP}, #{rate,jdbcType=DOUBLE}
+      )
   </insert>
   <insert id="insertSelective" parameterType="com.example.lab1.entity.FundRateTime" >
+    <selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER" >
+      SELECT LAST_INSERT_ID()
+    </selectKey>
     insert into fund_rate_time
     <trim prefix="(" suffix=")" suffixOverrides="," >
-      <if test="id != null" >
-        id,
-      </if>
       <if test="fundCode != null" >
         fund_code,
       </if>
@@ -121,9 +124,6 @@
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
-      <if test="id != null" >
-        #{id,jdbcType=INTEGER},
-      </if>
       <if test="fundCode != null" >
         #{fundCode,jdbcType=CHAR},
       </if>

@@ -10,13 +10,21 @@ public interface CustomerStockBuyMapper {
 
     int deleteByExample(CustomerStockBuyExample example);
 
+    int deleteByPrimaryKey(Integer id);
+
     int insert(CustomerStockBuy record);
 
     int insertSelective(CustomerStockBuy record);
 
     List<CustomerStockBuy> selectByExample(CustomerStockBuyExample example);
 
+    CustomerStockBuy selectByPrimaryKey(Integer id);
+
     int updateByExampleSelective(@Param("record") CustomerStockBuy record, @Param("example") CustomerStockBuyExample example);
 
     int updateByExample(@Param("record") CustomerStockBuy record, @Param("example") CustomerStockBuyExample example);
+
+    int updateByPrimaryKeySelective(CustomerStockBuy record);
+
+    int updateByPrimaryKey(CustomerStockBuy record);
 }

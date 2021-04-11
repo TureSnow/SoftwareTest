@@ -10,13 +10,6 @@ import java.util.List;
 
 
 public interface ProductService {
-    List<Fund> getAllFund();
-    Fund getFundByFundCode(String fundCode);
-    List<Term> getAllTerm();
-    Term getTermByTermCode(String termCode);
-    List<Stock> getAllStock();
-    Stock getStockByStockCode(String stockCode);
-
     /**
      * 查询账户等级
      * 一级账户可以购买股票、基金和定期理财产品

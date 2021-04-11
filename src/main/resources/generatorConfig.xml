@@ -44,12 +44,16 @@
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
         </table>
         <table tableName="customer_fund_sell">
+            <generatedKey column="id" sqlStatement="MySql" identity="true"/>
         </table>
         <table tableName="customer_fund_buy">
+            <generatedKey column="id" sqlStatement="MySql" identity="true"/>
         </table>
         <table tableName="customer_stock_buy">
+            <generatedKey column="id" sqlStatement="MySql" identity="true"/>
         </table>
         <table tableName="customer_stock_sell">
+            <generatedKey column="id" sqlStatement="MySql" identity="true"/>
         </table>
         <table tableName="customer_term">
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
@@ -57,13 +61,14 @@
         <table tableName="institutions">
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
         </table>
-        <table tableName="loan">
+        <!--<table tableName="loan">
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
-        </table>
+        </table>-->
         <table tableName="fund">
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
         </table>
         <table tableName="fund_rate_time">
+            <generatedKey column="id" sqlStatement="MySql" identity="true"/>
         </table>
         <table tableName="term">
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
@@ -75,6 +80,7 @@
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
         </table>
         <table tableName="stock_price_time">
+            <generatedKey column="id" sqlStatement="MySql" identity="true"/>
         </table>
     </context>
 </generatorConfiguration>

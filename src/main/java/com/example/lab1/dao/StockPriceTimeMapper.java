@@ -10,15 +10,21 @@ public interface StockPriceTimeMapper {
 
     int deleteByExample(StockPriceTimeExample example);
 
+    int deleteByPrimaryKey(Integer id);
+
     int insert(StockPriceTime record);
 
     int insertSelective(StockPriceTime record);
 
     List<StockPriceTime> selectByExample(StockPriceTimeExample example);
 
+    StockPriceTime selectByPrimaryKey(Integer id);
+
     int updateByExampleSelective(@Param("record") StockPriceTime record, @Param("example") StockPriceTimeExample example);
 
     int updateByExample(@Param("record") StockPriceTime record, @Param("example") StockPriceTimeExample example);
 
-    List<StockPriceTime> selectByStockCode(String stockCode);
+    int updateByPrimaryKeySelective(StockPriceTime record);
+
+    int updateByPrimaryKey(StockPriceTime record);
 }

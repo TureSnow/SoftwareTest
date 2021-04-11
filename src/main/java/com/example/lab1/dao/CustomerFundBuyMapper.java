@@ -10,15 +10,21 @@ public interface CustomerFundBuyMapper {
 
     int deleteByExample(CustomerFundBuyExample example);
 
+    int deleteByPrimaryKey(Integer id);
+
     int insert(CustomerFundBuy record);
 
     int insertSelective(CustomerFundBuy record);
 
-    int updateAfterSell(CustomerFundBuy record);
-
     List<CustomerFundBuy> selectByExample(CustomerFundBuyExample example);
+
+    CustomerFundBuy selectByPrimaryKey(Integer id);
 
     int updateByExampleSelective(@Param("record") CustomerFundBuy record, @Param("example") CustomerFundBuyExample example);
 
     int updateByExample(@Param("record") CustomerFundBuy record, @Param("example") CustomerFundBuyExample example);
+
+    int updateByPrimaryKeySelective(CustomerFundBuy record);
+
+    int updateByPrimaryKey(CustomerFundBuy record);
 }

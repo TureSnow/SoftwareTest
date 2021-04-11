@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.Date;
 
 public class CustomerFundBuy implements Serializable {
+    private Integer id;
+
     private Integer customerId;
 
     private String fundCode;
@@ -15,6 +17,14 @@ public class CustomerFundBuy implements Serializable {
     private Double total;
 
     private static final long serialVersionUID = 1L;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
     public Integer getCustomerId() {
         return customerId;
@@ -68,7 +78,8 @@ public class CustomerFundBuy implements Serializable {
             return false;
         }
         CustomerFundBuy other = (CustomerFundBuy) that;
-        return (this.getCustomerId() == null ? other.getCustomerId() == null : this.getCustomerId().equals(other.getCustomerId()))
+        return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
+            && (this.getCustomerId() == null ? other.getCustomerId() == null : this.getCustomerId().equals(other.getCustomerId()))
             && (this.getFundCode() == null ? other.getFundCode() == null : this.getFundCode().equals(other.getFundCode()))
             && (this.getTimeBuy() == null ? other.getTimeBuy() == null : this.getTimeBuy().equals(other.getTimeBuy()))
             && (this.getPrincipal() == null ? other.getPrincipal() == null : this.getPrincipal().equals(other.getPrincipal()))
@@ -79,6 +90,7 @@ public class CustomerFundBuy implements Serializable {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
+        result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
         result = prime * result + ((getCustomerId() == null) ? 0 : getCustomerId().hashCode());
         result = prime * result + ((getFundCode() == null) ? 0 : getFundCode().hashCode());
         result = prime * result + ((getTimeBuy() == null) ? 0 : getTimeBuy().hashCode());
@@ -93,6 +105,7 @@ public class CustomerFundBuy implements Serializable {
         sb.append(getClass().getSimpleName());
         sb.append(" [");
         sb.append("Hash = ").append(hashCode());
+        sb.append(", id=").append(id);
         sb.append(", customerId=").append(customerId);
         sb.append(", fundCode=").append(fundCode);
         sb.append(", timeBuy=").append(timeBuy);
