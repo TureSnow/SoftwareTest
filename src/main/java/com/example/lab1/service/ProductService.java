@@ -53,6 +53,8 @@ public interface ProductService {
      */
     List<MyFund> queryFundByCustomerCode(String customerCode);
 
+    List<FundRateTime> queryFundRateTimeByFundCode(String fundCode);
+
     /**
      * 购买定期
      * @param termCode
@@ -113,7 +115,7 @@ public interface ProductService {
      * @param stockCode
      * @return
      */
-    List<StockPriceTime> queryStockPrice(String stockCode);
+    List<StockPriceTime> queryStockPriceByStockCode(String stockCode);
     /**
      * 查询精准时间内的某一只股票的价格
      * @param stockCode

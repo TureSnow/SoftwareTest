@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Logger;
+
 @Service
 public class ProductServiceImpl implements ProductService {
     private StockMapper stockMapper;
@@ -19,6 +21,7 @@ public class ProductServiceImpl implements ProductService {
     private FundMapper fundMapper;
     private CustomerFundBuyMapper customerFundBuyMapper;
     private CustomerFundSellMapper customerFundSellMapper;
+    private FundRateTimeMapper fundRateTimeMapper;
     private TermMapper termMapper;
     private CustomerTermMapper customerTermMapper;
     private CardMapper cardMapper;
@@ -28,10 +31,11 @@ public class ProductServiceImpl implements ProductService {
     private LoanServiceImpl loanServiceImpl;
     @Autowired
     private CustomerServiceImpl customerService;
+    Logger logger=Logger.getLogger(this.getClass().getName());
     @Autowired
     public ProductServiceImpl(StockMapper stockMapper, StockPriceTimeMapper stockPriceTimeMapper,
                               CustomerStockBuyMapper customerStockBuyMapper, CustomerStockSellMapper customerStockSellMapper,
-                              FundMapper fundMapper, CustomerFundBuyMapper customerFundBuyMapper, CustomerFundSellMapper customerFundSellMapper, TermMapper termMapper, CustomerTermMapper customerTermMapper, CardMapper cardMapper, LoanMapper loanMapper, CustomerMapper customerMapper) {
+                              FundMapper fundMapper, CustomerFundBuyMapper customerFundBuyMapper, CustomerFundSellMapper customerFundSellMapper, FundRateTimeMapper fundRateTimeMapper, TermMapper termMapper, CustomerTermMapper customerTermMapper, CardMapper cardMapper, LoanMapper loanMapper, CustomerMapper customerMapper) {
         this.stockMapper = stockMapper;
         this.stockPriceTimeMapper = stockPriceTimeMapper;
         this.customerStockBuyMapper = customerStockBuyMapper;
@@ -39,6 +43,7 @@ public class ProductServiceImpl implements ProductService {
         this.fundMapper = fundMapper;
         this.customerFundBuyMapper = customerFundBuyMapper;
         this.customerFundSellMapper = customerFundSellMapper;
+        this.fundRateTimeMapper = fundRateTimeMapper;
         this.termMapper = termMapper;
         this.customerTermMapper = customerTermMapper;
         this.cardMapper = cardMapper;
@@ -50,15 +55,27 @@ public class ProductServiceImpl implements ProductService {
     //todo:考虑加密
     public boolean checkCustomerAndCard(String customerCode, String idNumber, String accountNum, String password){
         Customer customer = customerService.getCustomerByCode(customerCode);
-        if (customer==null)
+        if (customer==null){
+            logger.warning("--------------------customer is null");
             return false;
-        if (!customer.getIdNumber().equals(idNumber))
+        }
+
+        if (!customer.getIdNumber().equals(idNumber)){
+            logger.info("param:"+idNumber);
+            logger.info("real:"+customer.getIdNumber());
+            logger.warning("--------------------idNumber error");
             return false;
+        }
+
         Card card = loanServiceImpl.findCardByAccountNum(accountNum);
-        if (card==null)
+        if (card==null) {
+            logger.warning("--------------------card is null");
             return false;
-        if (!card.getPassword().equals(password)||!card.getCustomerCode().equals(customerCode))
+        }
+        if (!card.getPassword().equals(password)||!card.getCustomerCode().equals(customerCode)) {
+            logger.warning("--------------------card password error or customer code error");
             return false;
+        }
         return true;
     }
 
@@ -171,6 +188,7 @@ public class ProductServiceImpl implements ProductService {
         List<Fund> funds = fundMapper.selectByExample(example);
         return funds.size()==0?null:funds.get(0);
     }
+
     //查询某一客户对某一基金的持有量
     public MyFund queryByCustomerIdAndFundCode(int customerId,String fundCode){
         CustomerFundBuyExample example=new CustomerFundBuyExample();
@@ -203,6 +221,14 @@ public class ProductServiceImpl implements ProductService {
         return merge(ihave,nothave);
     }
 
+    @Override
+    public List<FundRateTime> queryFundRateTimeByFundCode(String fundCode) {
+        FundRateTimeExample example=new FundRateTimeExample();
+//        example.setOrderByClause("order by ");
+        example.setOrderByClause("time desc");
+        example.or().andFundCodeEqualTo(fundCode);
+        return fundRateTimeMapper.selectByExample(example);
+    }
 
 
     public Term getTermByTermCode(String termCode){
@@ -285,16 +311,28 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public int buyStock(String stockCode,String customerCode, String idNumber, String accountNum, String password, int amount) {
-        if (!checkCustomerAndCard(customerCode,idNumber,accountNum,password))
+        if (!checkCustomerAndCard(customerCode,idNumber,accountNum,password)){
+            logger.warning("--------------------user check fail");
             return -1;
-        int lv=getAccountLv(accountNum);
-        if(lv==-1)
-            return -1;
-        if(lv>1)
-            return -1;
+        }
         //先归还罚金
-        if(!loanServiceImpl.payFineOfCard(accountNum))
+        if(!loanServiceImpl.payFineOfCard(accountNum)){
+            logger.warning("--------------------fine pay fail");
             return -1;
+        }
+
+        int lv=getAccountLv(accountNum);
+        if(lv==-1){
+            logger.warning("--------------------account lv error1");
+            return -1;
+        }
+
+        if(lv>1){
+            logger.warning("--------------------account lv error2");
+            return -1;
+        }
+
+
         Card card = loanServiceImpl.findCardByAccountNum(accountNum);
         Customer customer = customerService.getCustomerByCode(customerCode);
         //计算总价
@@ -310,15 +348,16 @@ public class ProductServiceImpl implements ProductService {
             buy.setBuyTime(new Date());
             buy.setCustomerId(customer.getId());
             buy.setStockCode(stockCode);
+            logger.info("--------------------buy ok");
             return customerStockBuyMapper.insert(buy);
         }
+        logger.warning("--------------------buy fail");
         return -1;
     }
 
-
     //获得股票最新价格
     public double getLeastStockPrice(String stockCode){
-        List<StockPriceTime> stockPriceTimes = queryStockPrice(stockCode);
+        List<StockPriceTime> stockPriceTimes = this.queryStockPriceByStockCode(stockCode);
         return stockPriceTimes.size()==0?0:stockPriceTimes.get(0).getPrice();
     }
 
@@ -369,15 +408,16 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<StockPriceTime> queryStockPrice(String stockCode) {
+    public List<StockPriceTime> queryStockPriceByStockCode(String stockCode) {
         StockPriceTimeExample example=new StockPriceTimeExample();
+        example.setOrderByClause("time desc");
         example.or().andStockCodeEqualTo(stockCode);
         return stockPriceTimeMapper.selectByExample(example);
     }
 
     @Override
     public double queryStockPriceInTime(String stockCode, Date time) {
-        List<StockPriceTime> stockPriceTimes = queryStockPrice(stockCode);
+        List<StockPriceTime> stockPriceTimes = this.queryStockPriceByStockCode(stockCode);
         if (stockPriceTimes.size()==0)
             return -1;
         double price=0;

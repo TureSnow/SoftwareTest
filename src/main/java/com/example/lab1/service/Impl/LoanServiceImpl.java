@@ -91,6 +91,8 @@ public class LoanServiceImpl implements LoanService {
 
     public Card findCardByAccountNum(String accountNum){
         CardExample example=new CardExample();
+        if (accountNum==null)
+            return null;
         example.or().andAccountNumEqualTo(accountNum);
         List<Card> cards = cardMapper.selectByExample(example);
         return cards.size()==0?null:cards.get(0);
@@ -132,6 +134,7 @@ public class LoanServiceImpl implements LoanService {
 
         //通过找到那笔贷款，找出贷款人和还款人的银行卡号
         Loan loan=findLoanByIouNumber(iouNum);
+        logger.info("贷款信息 "+loan);
         String customerCode=loan.getCustomerCode();
         List<Card> cardList=findCardsByCustomerCode(customerCode);
 
@@ -141,6 +144,7 @@ public class LoanServiceImpl implements LoanService {
                 cardList.get(i).setBalance(cardList.get(i).getBalance()-amount);
                 //找到先前贷款机构，把钱还回去
                 logger.info("贷款机构银行卡 "+loan.getInstitutionAccountNum());
+                //todo:card==null???
                 Card card=findCardByAccountNum(loan.getInstitutionAccountNum());
                 logger.info("先前的贷款机构为"+card);
                 //更新回数据库
@@ -393,7 +397,7 @@ public class LoanServiceImpl implements LoanService {
      * @return
      */
     public boolean payFineOfCard(String accountNum){
-        //找到银行卡中的余额
+        //找到银行卡
         Card card=findCardByAccountNum(accountNum);
 
         //找到该卡的所有贷款

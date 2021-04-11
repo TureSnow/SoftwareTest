@@ -1,6 +1,7 @@
 package com.example.lab1.controller;
 
 import com.example.lab1.api.CommonResult;
+import com.example.lab1.entity.Customer;
 import com.example.lab1.model.MyCard;
 import com.example.lab1.service.CustomerService;
 import io.swagger.annotations.ApiOperation;
@@ -23,5 +24,12 @@ public class CustomerController {
         logger.info("-----------------------------------------"+code);
         List<MyCard> cards = customerService.getCardsByCustomerCode(code);
         return cards;
+    }
+    @GetMapping("/customer")
+    @ApiOperation("根据customer code获得用户")
+    public CommonResult<Customer> getCustomerByCustomerCode(@RequestParam String code){
+        logger.info("-----------------------------------------"+code);
+        Customer customer = customerService.getCustomerByCode(code);
+        return customer==null?CommonResult.failed("no such costomerCode"):CommonResult.success(customer);
     }
 }

@@ -1,5 +1,7 @@
 package com.example.lab1.controller;
 import com.example.lab1.api.CommonResult;
+import com.example.lab1.entity.FundRateTime;
+import com.example.lab1.entity.StockPriceTime;
 import com.example.lab1.model.MyFund;
 import com.example.lab1.model.MyStock;
 import com.example.lab1.model.MyTerm;
@@ -61,7 +63,7 @@ public class FinancialController {
         String accountNum=(String) param.get("accountNum");
         String password=(String) param.get("password");
         String stockCode=(String) param.get("stockCode");
-        int amount=(Integer) param.get("amount");
+        int amount=Integer.parseInt((String)param.get("amount"));
         int flag = productService.buyStock(stockCode, customerCode, idNumber, accountNum, password, amount);
         if (flag<0)
             return CommonResult.failed("buy failed...");
@@ -126,5 +128,18 @@ public class FinancialController {
         if (flag<0)
             return CommonResult.failed("buy failed...");
         return CommonResult.success("buy success!");
+    }
+
+    @GetMapping("/financing/product/stock/prices")
+    @ApiOperation("查询单只股票历史价格")
+    public CommonResult<List<StockPriceTime>> queryStockPriceByStockCode(@RequestParam String code){
+        List<StockPriceTime> stockPriceTimes = productService.queryStockPriceByStockCode(code);
+        return stockPriceTimes.size()==0?CommonResult.failed("query fail:code error"):CommonResult.success(stockPriceTimes);
+    }
+    @GetMapping("/financing/product/fund/prices")
+    @ApiOperation("查询单个基金历史·利率")
+    public CommonResult<List<FundRateTime>> queryFundRateByFundCode(@RequestParam String code){
+        List<FundRateTime> fundRateTimes = productService.queryFundRateTimeByFundCode(code);
+        return fundRateTimes.size()==0?CommonResult.failed("code error"):CommonResult.success(fundRateTimes);
     }
 }
