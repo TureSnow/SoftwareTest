@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.lab1.dao.LoansDao">
+
+    <select id="findLoansByCustomerCode" resultType="Loan">
+   select * from loans
+   where customer_code=#{customerCode}
+</select>
+    <select id="findLoanByIouNumber" resultType="Loan">
+select * from loans where iou_num=#{iouNum}
+   </select>
+    <select id="findLoansByAccountNum" resultType="Loan">
+        select * from loans where account_num=#{accountNum}
+    </select>
+</mapper>

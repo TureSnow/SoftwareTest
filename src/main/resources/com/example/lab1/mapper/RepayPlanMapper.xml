@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.lab1.dao.RepayPlansDao">
+<!--通过id找出对应的还款计划-->
+<select id="findRepayPlanById" resultType="RepayPlan">
+    select * from repay_plans where id=#{id}
+</select>
+    <update id="updateRepayPlan" parameterType="RepayPlan">
+        update repay_plans set status=#{status} , remain_amount=#{remainAmount} , remain_principal=#{remainPrincipal} , remain_interest=#{remainInterest} , fine=#{fine} where id=#{id}
+    </update>
+    <select id="findRepayPlansByIouNum" resultType="RepayPlan">
+        select * from repay_plans where iou_num=#{iouNum}
+    </select>
+    <select id="findUnPayPlans" resultType="RepayPlan">
+        select * from repay_plans where status &lt;'3'
+    </select>
+
+</mapper>
