@@ -8,10 +8,7 @@ import com.example.lab1.model.MyTerm;
 import com.example.lab1.service.ProductService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -57,13 +54,13 @@ public class FinancialController {
     }
     @PostMapping("/financing/myProduct/stock/buy")
     @ApiOperation("买入股票")
-    public CommonResult<String> buyStock(@RequestParam Map<String,Object> param){
-        String customerCode=(String) param.get("customerCode");
-        String idNumber=(String) param.get("IDNumber");
-        String accountNum=(String) param.get("accountNum");
-        String password=(String) param.get("password");
-        String stockCode=(String) param.get("stockCode");
-        int amount=Integer.parseInt((String)param.get("amount"));
+    public CommonResult<String> buyStock(@RequestBody Map<String,String> param){
+        String customerCode= param.get("customerCode");
+        String idNumber= param.get("IDNumber");
+        String accountNum= param.get("accountNum");
+        String password= param.get("password");
+        String stockCode= param.get("stockCode");
+        int amount=Integer.parseInt(param.get("amount"));
         int flag = productService.buyStock(stockCode, customerCode, idNumber, accountNum, password, amount);
         if (flag<0)
             return CommonResult.failed("buy failed...");
@@ -71,13 +68,13 @@ public class FinancialController {
     }
     @PostMapping("/financing/myProduct/stock/sell")
     @ApiOperation("售出股票")
-    public CommonResult<String> sellStock(@RequestParam Map<String,Object> param){
-        String stockCode=(String) param.get("stockCode");
-        String customerCode=(String) param.get("customerCode");
-        String idNumber=(String) param.get("IDNumber");
-        String accountNum=(String) param.get("accountNum");
-        String password=(String) param.get("password");
-        int amount=(Integer) param.get("amount");
+    public CommonResult<String> sellStock(@RequestBody Map<String,String> param){
+        String stockCode= param.get("stockCode");
+        String customerCode= param.get("customerCode");
+        String idNumber= param.get("IDNumber");
+        String accountNum= param.get("accountNum");
+        String password= param.get("password");
+        int amount=Integer.parseInt(param.get("amount"));
         int flag = productService.sellStock(stockCode, customerCode, idNumber, accountNum, password, amount);
         if (flag<0)
             return CommonResult.failed("sell failed...");
@@ -87,13 +84,13 @@ public class FinancialController {
 
     @PostMapping("/financing/myProduct/fund/buy")
     @ApiOperation("买入基金")
-    public CommonResult<String> buyFund(@RequestParam Map<String,Object> param){
-        String fundCode=(String) param.get("fundCode");
-        String customerCode=(String) param.get("customerCode");
-        String idNumber=(String) param.get("IDNumber");
-        String accountNum=(String) param.get("accountNum");
-        String password=(String) param.get("password");
-        double amount=(Double) param.get("amount");
+    public CommonResult<String> buyFund(@RequestBody Map<String,String> param){
+        String fundCode=param.get("fundCode");
+        String customerCode= param.get("customerCode");
+        String idNumber=param.get("IDNumber");
+        String accountNum= param.get("accountNum");
+        String password=param.get("password");
+        double amount=Double.parseDouble(param.get("amount")) ;
         int flag = productService.buyFund(fundCode, customerCode, idNumber, accountNum, password, amount);
         if (flag<0)
             return CommonResult.failed("buy failed...");
@@ -102,13 +99,13 @@ public class FinancialController {
 
     @PostMapping("/financing/myProduct/fund/sell")
     @ApiOperation("售出基金")
-    public CommonResult<String> sellFund(@RequestParam Map<String,Object> param){
-        String fundCode=(String) param.get("fundCode");
-        String customerCode=(String) param.get("customerCode");
-        String idNumber=(String) param.get("IDNumber");
-        String accountNum=(String) param.get("accountNum");
-        String password=(String) param.get("password");
-        double amount=(Double) param.get("amount");
+    public CommonResult<String> sellFund(@RequestBody Map<String,String> param){
+        String fundCode=param.get("fundCode");
+        String customerCode=param.get("customerCode");
+        String idNumber=param.get("IDNumber");
+        String accountNum=param.get("accountNum");
+        String password=param.get("password");
+        double amount=Double.parseDouble(param.get("amount"));
         int flag = productService.sellFund(fundCode, customerCode, idNumber, accountNum, password, amount);
         if (flag<0)
             return CommonResult.failed("sell failed...");
@@ -117,13 +114,13 @@ public class FinancialController {
 
     @PostMapping("//financing/myProduct/term/buy")
     @ApiOperation("买入定期理财产品")
-    public CommonResult<String> buyTerm(@RequestParam Map<String,Object> param){
-        String termCode=(String) param.get("termCode");
-        String customerCode=(String) param.get("customerCode");
-        String idNumber=(String) param.get("IDNumber");
-        String accountNum=(String) param.get("accountNum");
-        String password=(String) param.get("password");
-        double amount=(Double) param.get("amount");
+    public CommonResult<String> buyTerm(@RequestBody Map<String,String> param){
+        String termCode=param.get("termCode");
+        String customerCode= param.get("customerCode");
+        String idNumber= param.get("IDNumber");
+        String accountNum= param.get("accountNum");
+        String password= param.get("password");
+        double amount=Double.parseDouble(param.get("amount"));
         int flag = productService.buyTerm(termCode, customerCode, idNumber, accountNum, password, amount);
         if (flag<0)
             return CommonResult.failed("buy failed...");
