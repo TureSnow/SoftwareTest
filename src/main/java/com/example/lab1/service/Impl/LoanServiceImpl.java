@@ -1,11 +1,11 @@
 package com.example.lab1.service.Impl;
 
 import com.example.lab1.dao.CardMapper;
-import com.example.lab1.dao.CustomerMapper;
 import com.example.lab1.dao.LoanMapper;
 import com.example.lab1.dao.RepayPlanMapper;
 import com.example.lab1.entity.*;
 import com.example.lab1.service.LoanService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
@@ -16,11 +16,18 @@ import java.util.logging.Logger;
 
 @Service
 public class LoanServiceImpl implements LoanService {
-    LoanMapper loanMapper;
-    CustomerMapper customerMapper;
-    RepayPlanMapper repayPlanMapper;
-    CardMapper cardMapper;
+    private LoanMapper loanMapper;
+    private RepayPlanMapper repayPlanMapper;
+    private CardMapper cardMapper;
+    @Autowired
+    private CustomerServiceImpl customerService;
     Logger logger=Logger.getLogger(LoanServiceImpl.class.getName());
+    @Autowired
+    public LoanServiceImpl(LoanMapper loanMapper, RepayPlanMapper repayPlanMapper, CardMapper cardMapper) {
+        this.loanMapper = loanMapper;
+        this.repayPlanMapper = repayPlanMapper;
+        this.cardMapper = cardMapper;
+    }
 
     public String autoRepay() {
         //先找出所有未还账单
@@ -96,7 +103,7 @@ public class LoanServiceImpl implements LoanService {
     }
 
     public Customer findCustomerByIdNumber(String idNumber){
-        return findCustomerByIdNumber(idNumber);
+        return customerService.getCustomerByIdNumber(idNumber);
     }
 
     public List<Loan> findLoansByCustomerCode(String customerCode){

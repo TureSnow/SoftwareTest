@@ -8,4 +8,5 @@ import java.util.List;
 public interface CustomerService {
     List<MyCard> getCardsByCustomerCode(String code);
     Customer getCustomerByCode(String code);
+    Customer getCustomerByIdNumber(String IdNumber);
 }

@@ -5,6 +5,7 @@ import com.example.lab1.model.MyFund;
 import com.example.lab1.model.MyStock;
 import com.example.lab1.model.MyTerm;
 import com.example.lab1.service.ProductService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.LinkedList;
@@ -23,8 +24,27 @@ public class ProductServiceImpl implements ProductService {
     private CardMapper cardMapper;
     private LoanMapper loanMapper;
     private CustomerMapper customerMapper;
+    @Autowired
     private LoanServiceImpl loanServiceImpl;
+    @Autowired
     private CustomerServiceImpl customerService;
+    @Autowired
+    public ProductServiceImpl(StockMapper stockMapper, StockPriceTimeMapper stockPriceTimeMapper,
+                              CustomerStockBuyMapper customerStockBuyMapper, CustomerStockSellMapper customerStockSellMapper,
+                              FundMapper fundMapper, CustomerFundBuyMapper customerFundBuyMapper, CustomerFundSellMapper customerFundSellMapper, TermMapper termMapper, CustomerTermMapper customerTermMapper, CardMapper cardMapper, LoanMapper loanMapper, CustomerMapper customerMapper) {
+        this.stockMapper = stockMapper;
+        this.stockPriceTimeMapper = stockPriceTimeMapper;
+        this.customerStockBuyMapper = customerStockBuyMapper;
+        this.customerStockSellMapper = customerStockSellMapper;
+        this.fundMapper = fundMapper;
+        this.customerFundBuyMapper = customerFundBuyMapper;
+        this.customerFundSellMapper = customerFundSellMapper;
+        this.termMapper = termMapper;
+        this.customerTermMapper = customerTermMapper;
+        this.cardMapper = cardMapper;
+        this.loanMapper = loanMapper;
+        this.customerMapper = customerMapper;
+    }
 
     //检验用户数据
     //todo:考虑加密

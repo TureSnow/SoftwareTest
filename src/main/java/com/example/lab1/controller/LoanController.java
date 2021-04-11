@@ -10,8 +10,8 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 @RestController
-
 public class LoanController {
+    @Autowired
     private LoanService loanService;
     Logger logger=Logger.getLogger(LoanController.class.getName());
 

@@ -48,4 +48,10 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
 
+    public Customer getCustomerByIdNumber(String IdNumber) {
+        CustomerExample example=new CustomerExample();
+        example.or().andIdNumberEqualTo(IdNumber);
+        List<Customer> customers = customerMapper.selectByExample(example);
+        return customers.size()==0?null:customers.get(0);
+    }
 }
