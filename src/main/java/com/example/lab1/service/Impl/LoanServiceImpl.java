@@ -112,10 +112,9 @@ public class LoanServiceImpl implements LoanService {
         LoanExample example=new LoanExample();
         example.or().andCustomerCodeEqualTo(customerCode);
         List<Loan> loanList=loanMapper.selectByExample(example);
-        for (int i = 0; i < loanList.size(); i++) {
-            loanList.get(i).setDueBalance(calculateDueBalance(loanList.get(i).getIouNum()));
-
-            logger.info("过期余额为"+loanList.get(i).getDueBalance());
+        for (Loan loan:loanList) {
+            loan.setDueBalance(calculateDueBalance(loan.getIouNum()));
+            logger.info("过期余额为"+loan.getDueBalance());
         }
         return loanList;
     }

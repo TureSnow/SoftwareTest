@@ -28,12 +28,22 @@ public class Loan implements Serializable {
 
     private String institutionAccountNum;
 
+    private String name;
+
     private double dueBalance;
 
     private static final long serialVersionUID = 1L;
 
     public Integer getId() {
         return id;
+    }
+
+    public double getDueBalance() {
+        return dueBalance;
+    }
+
+    public void setDueBalance(double dueBalance) {
+        this.dueBalance = dueBalance;
     }
 
     public void setId(Integer id) {
@@ -128,6 +138,14 @@ public class Loan implements Serializable {
         this.institutionAccountNum = institutionAccountNum;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     @Override
     public boolean equals(Object that) {
         if (this == that) {
@@ -151,7 +169,8 @@ public class Loan implements Serializable {
             && (this.getLoanCost() == null ? other.getLoanCost() == null : this.getLoanCost().equals(other.getLoanCost()))
             && (this.getLoanAmount() == null ? other.getLoanAmount() == null : this.getLoanAmount().equals(other.getLoanAmount()))
             && (this.getProductCode() == null ? other.getProductCode() == null : this.getProductCode().equals(other.getProductCode()))
-            && (this.getInstitutionAccountNum() == null ? other.getInstitutionAccountNum() == null : this.getInstitutionAccountNum().equals(other.getInstitutionAccountNum()));
+            && (this.getInstitutionAccountNum() == null ? other.getInstitutionAccountNum() == null : this.getInstitutionAccountNum().equals(other.getInstitutionAccountNum()))
+            && (this.getName() == null ? other.getName() == null : this.getName().equals(other.getName()));
     }
 
     @Override
@@ -170,15 +189,10 @@ public class Loan implements Serializable {
         result = prime * result + ((getLoanAmount() == null) ? 0 : getLoanAmount().hashCode());
         result = prime * result + ((getProductCode() == null) ? 0 : getProductCode().hashCode());
         result = prime * result + ((getInstitutionAccountNum() == null) ? 0 : getInstitutionAccountNum().hashCode());
+        result = prime * result + ((getName() == null) ? 0 : getName().hashCode());
         return result;
     }
-    public double getDueBalance() {
-        return dueBalance;
-    }
 
-    public void setDueBalance(double dueBalance) {
-        this.dueBalance = dueBalance;
-    }
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -197,6 +211,7 @@ public class Loan implements Serializable {
         sb.append(", loanAmount=").append(loanAmount);
         sb.append(", productCode=").append(productCode);
         sb.append(", institutionAccountNum=").append(institutionAccountNum);
+        sb.append(", name=").append(name);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();
