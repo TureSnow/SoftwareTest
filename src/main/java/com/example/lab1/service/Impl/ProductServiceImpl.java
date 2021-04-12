@@ -410,10 +410,12 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<StockPriceTime> queryStockPriceByStockCode(String stockCode) {
         StockPriceTimeExample example=new StockPriceTimeExample();
-        example.setOrderByClause("time desc");
+        example.setOrderByClause("time asc");
         example.or().andStockCodeEqualTo(stockCode);
         return stockPriceTimeMapper.selectByExample(example);
     }
+
+
 
     @Override
     public double queryStockPriceInTime(String stockCode, Date time) {
@@ -421,7 +423,8 @@ public class ProductServiceImpl implements ProductService {
         if (stockPriceTimes.size()==0)
             return -1;
         double price=0;
-        for(StockPriceTime priceTime:stockPriceTimes){
+        for(int i=stockPriceTimes.size()-1;i>=0;i--){
+            StockPriceTime priceTime = stockPriceTimes.get(i);
             if(time.after(priceTime.getTime())){
                 //找到第一个在给定时间之前（最新）的价格
                 //date: 2.10   2.9    2.8
