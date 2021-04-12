@@ -6,11 +6,26 @@ import java.util.Date;
 public class MyTerm implements Serializable {
     String termCode;
     String termName;
+    double rate;
+    int minTerm;
     double principal;
     double expected_profit;
-    int months;
     Date buyTime;
 
+    public int getMinTerm() {
+        return minTerm;
+    }
+
+    public void setMinTerm(int minTerm) {
+        this.minTerm = minTerm;
+    }
+    public double getRate() {
+        return rate;
+    }
+
+    public void setRate(double rate) {
+        this.rate = rate;
+    }
     public String getTermCode() {
         return termCode;
     }
@@ -39,13 +54,6 @@ public class MyTerm implements Serializable {
         this.expected_profit = expected_profit;
     }
 
-    public int getMonths() {
-        return months;
-    }
-
-    public void setMonths(int months) {
-        this.months = months;
-    }
 
     public Date getBuyTime() {
         return buyTime;
@@ -55,13 +63,14 @@ public class MyTerm implements Serializable {
         this.buyTime = buyTime;
     }
 
-    public MyTerm(String termCode, String termName, double principal, double expected_profit, int months, Date buyTime){
+    public MyTerm(String termCode, String termName, double rate,double principal, double expected_profit, int minTerm, Date buyTime){
         this.buyTime=buyTime;
+        this.rate=rate;
         this.expected_profit=expected_profit;
         this.termCode=termCode;
         this.termName=termName;
         this.principal=principal;
-        this.months=months;
+        this.minTerm=minTerm;
     }
 
     public double getPrincipal() {

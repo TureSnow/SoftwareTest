@@ -225,7 +225,7 @@ public class ProductServiceImpl implements ProductService {
     public List<FundRateTime> queryFundRateTimeByFundCode(String fundCode) {
         FundRateTimeExample example=new FundRateTimeExample();
 //        example.setOrderByClause("order by ");
-        example.setOrderByClause("time desc");
+        example.setOrderByClause("time asc");
         example.or().andFundCodeEqualTo(fundCode);
         return fundRateTimeMapper.selectByExample(example);
     }
@@ -270,13 +270,14 @@ public class ProductServiceImpl implements ProductService {
         List<CustomerTerm> customerTerms = customerTermMapper.selectByExample(example);
         MyTerm res;
         if (customerTerms.size()==0){
-            res=new MyTerm(termCode,term.getName(),0,0,0,null);
+            res=new MyTerm(termCode,term.getName(),term.getRate(),0,0,0,null);
         }else {
             CustomerTerm customerTerm = customerTerms.get(0);
             //本金x年数x年利率
             double profit=customerTerm.getPrinciple()*term.getMinTerm()*term.getRate()/(100*12);
 
-            res=new MyTerm(termCode,term.getName(),customerTerm.getPrinciple(),profit,term.getMinTerm(),customerTerm.getTime());
+            res=new MyTerm(termCode,term.getName(),term.getRate(),
+                    customerTerm.getPrinciple(),profit,term.getMinTerm(),customerTerm.getTime());
         }
         return res;
     }
