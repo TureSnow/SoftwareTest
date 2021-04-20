@@ -16,9 +16,13 @@ import java.util.logging.Logger;
 
 @RestController
 public class FinancialController {
-    @Autowired
-    private ProductService productService;
+    private final ProductService productService;
     Logger logger= Logger.getLogger(LoanController.class.getName());
+
+    public FinancialController(ProductService productService) {
+        this.productService = productService;
+    }
+
     @GetMapping("/financing/account/level")
     @ApiOperation("查询用户等级")
     public CommonResult<Integer> queryAccountLv(@RequestParam String accountNum){
