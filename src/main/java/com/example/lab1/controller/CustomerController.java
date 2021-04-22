@@ -15,9 +15,13 @@ import java.util.logging.Logger;
 
 @RestController
 public class CustomerController {
-    @Autowired
-    private CustomerService customerService;
+    private final CustomerService customerService;
     Logger logger=Logger.getLogger(this.getClass().getName());
+
+    public CustomerController(CustomerService customerService) {
+        this.customerService = customerService;
+    }
+
     @GetMapping("/customer/cards")
     @ApiOperation("根据customer code获得用户全部银行卡")
     public List<MyCard> getCardsByCustomerCode(@RequestParam String code){

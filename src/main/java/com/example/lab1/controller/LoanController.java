@@ -11,9 +11,12 @@ import java.util.logging.Logger;
 
 @RestController
 public class LoanController {
-    @Autowired
-    private LoanService loanService;
+    private final LoanService loanService;
     Logger logger=Logger.getLogger(LoanController.class.getName());
+
+    public LoanController(LoanService loanService) {
+        this.loanService = loanService;
+    }
 
     //
     @GetMapping("/autoRepay")
