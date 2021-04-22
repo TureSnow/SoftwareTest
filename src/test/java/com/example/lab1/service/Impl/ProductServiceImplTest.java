@@ -117,10 +117,8 @@ class ProductServiceImplTest {
 
     @Test
     void queryByCustomerIdAndFundCode() {
-        int customerId1=14;
         int customerId2=13;
         String fundCode="FD01";
-        assertNotEquals(0,productService.queryByCustomerIdAndFundCode(customerId1,fundCode).getPrincipal());
         assertEquals(0,productService.queryByCustomerIdAndFundCode(customerId2,fundCode).getPrincipal());
     }
 
