@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.event.annotation.BeforeTestMethod;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
@@ -72,13 +74,16 @@ class ProductServiceImplTest {
         double amount=100;
         //buy ok
         assertEquals(1,productService.buyFund(fundCode,customerCode,idNumber,accountNum,password,amount));
+        //buy ok
+        assertEquals(1,productService.buyFund(fundCode,customerCode,idNumber,accountNum,password,amount));
         //check error
         assertEquals(-1,productService.buyFund(fundCode,customerCode,idNumber,accountNum,"test",amount));
         //lv error
         String accountNumber1="6161779470821216793";
         String password1="wrrewrsdfsfsfgdfgd";
         assertEquals(0,productService.buyFund(fundCode,customerCode,idNumber,accountNumber1,password1,amount));
-        //pay fine error?
+        //buy fail
+        assertEquals(-1,productService.buyFund(fundCode,customerCode,idNumber,accountNum,password,100000000000.0));
     }
 
     /**
@@ -91,13 +96,15 @@ class ProductServiceImplTest {
         String idNumber="465432134566789097";
         String accountNum="6161779470821245928";
         String password="dsaddadaewradada";
-        double amount=50;
-        //sell ok
-        assertEquals(1,productService.sellFund(fundCode,customerCode,idNumber,accountNum,password,amount));
+        double amount=1;
         //check error
         assertEquals(-1,productService.sellFund(fundCode,customerCode,idNumber,accountNum,"test",amount));
+        //sell ok
+        assertEquals(1,productService.sellFund(fundCode,customerCode,idNumber,accountNum,password,amount));
         // not buy,no that fund
         assertEquals(-1,productService.sellFund("fundCode",customerCode,idNumber,accountNum,password,amount));
+        //sell too much
+        assertEquals(-1,productService.sellFund(fundCode,customerCode,idNumber,accountNum,password,1000000000));
     }
 
     @Test
@@ -236,6 +243,13 @@ class ProductServiceImplTest {
 
     @Test
     void merge() {
+        List<Integer> list1=new ArrayList<>();
+        list1.add(1);
+        list1.add(2);
+        List<Integer> list2=new ArrayList<>();
+        list2.add(3);
+        list2.add(4);
+        assertEquals(4,ProductServiceImpl.merge(list1,list2).size());
     }
 
     @Test

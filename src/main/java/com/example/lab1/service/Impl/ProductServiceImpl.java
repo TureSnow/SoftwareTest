@@ -107,13 +107,10 @@ public class ProductServiceImpl implements ProductService {
         if (!checkCustomerAndCard(customerCode,idNumber,accountNum,password))
             return -1;
         int lv=getAccountLv(accountNum);
-        if(lv==-1)
-            return 0;
-        if(lv>2)
+        if(lv!=2&&lv!=1)
             return 0;
         //先归还罚金
-        if(!loanServiceImpl.payFineOfCard(accountNum))
-            return -1;
+        loanServiceImpl.payFineOfCard(accountNum);
         Card card = loanServiceImpl.findCardByAccountNum(accountNum);
         if(card.getBalance()>amount){
             //更新卡余额
@@ -243,8 +240,7 @@ public class ProductServiceImpl implements ProductService {
         if (!checkCustomerAndCard(customerCode,idNumber,accountNum,password))
             return -1;
         //先归还罚金
-        if(!loanServiceImpl.payFineOfCard(accountNum))
-            return -1;
+        loanServiceImpl.payFineOfCard(accountNum);
         Card card = loanServiceImpl.findCardByAccountNum(accountNum);
         Customer customer = customerService.getCustomerByCode(customerCode);
         if(card.getBalance()<amount)
@@ -347,7 +343,7 @@ public class ProductServiceImpl implements ProductService {
     //获得股票最新价格
     public double getLeastStockPrice(String stockCode){
         List<StockPriceTime> stockPriceTimes = this.queryStockPriceByStockCode(stockCode);
-        return stockPriceTimes.size()==0?0:stockPriceTimes.get(0).getPrice();
+        return stockPriceTimes.size()==0?0:stockPriceTimes.get(stockPriceTimes.size()-1).getPrice();
     }
 
     //获得目前股票持仓情况
@@ -425,11 +421,10 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<MyStock> queryStockByCustomerCode(String customerCode) {
-        StockExample example=new StockExample();
-        List<Stock> stocks = stockMapper.selectByExample(example);
         Customer customer = customerService.getCustomerByCode(customerCode);
         if (customer==null)
             return null;
+        List<Stock> stocks = stockMapper.selectByExample(new StockExample());
         List<MyStock> iHave=new LinkedList<>();
         List<MyStock> notHave=new LinkedList<>();
         for (Stock stock:stocks){
