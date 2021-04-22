@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 public interface RepayPlanMapper {
+    List<RepayPlan> getUnPayPlanByIouNum(String iouNum);
     int countByExample(RepayPlanExample example);
 
     int deleteByExample(RepayPlanExample example);

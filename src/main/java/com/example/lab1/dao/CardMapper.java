@@ -6,6 +6,8 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 public interface CardMapper {
+    Card getCardByAccountNum(String accountNum);
+    List<Card> getCardsByCustomerCode(String customerCode);
     int countByExample(CardExample example);
 
     int deleteByExample(CardExample example);

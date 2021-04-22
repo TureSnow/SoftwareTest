@@ -1,4 +1,4 @@
-package com.example.lab1.service.Impl;
+package com.example.lab1.service.impl;
 
 import com.example.lab1.dao.CardMapper;
 import com.example.lab1.dao.LoanMapper;
@@ -91,8 +91,6 @@ public class LoanServiceImpl implements LoanService {
 
     public Card findCardByAccountNum(String accountNum){
         CardExample example=new CardExample();
-        if (accountNum==null)
-            return null;
         example.or().andAccountNumEqualTo(accountNum);
         List<Card> cards = cardMapper.selectByExample(example);
         return cards.size()==0?null:cards.get(0);
@@ -129,7 +127,7 @@ public class LoanServiceImpl implements LoanService {
      * 尝试归还一定数目的欠款(罚金或者是应还欠款)，若能归还，则直接归还并返回true，否则，返回false
      * @return
      */
-    private boolean canRepay(String iouNum,double amount){
+    public boolean canRepay(String iouNum,double amount){
 
         //通过找到那笔贷款，找出贷款人和还款人的银行卡号
         Loan loan=findLoanByIouNumber(iouNum);
@@ -139,11 +137,10 @@ public class LoanServiceImpl implements LoanService {
 
         for (int i = 0; i < cardList.size(); i++) {
             //减少浮点数偏差
-            if (Math.abs(cardList.get(i).getBalance()-amount)>0.001){//如果钱够，则还钱
+            if (cardList.get(i).getBalance()-amount>0.001){//如果钱够，则还钱
                 cardList.get(i).setBalance(cardList.get(i).getBalance()-amount);
                 //找到先前贷款机构，把钱还回去
                 logger.info("贷款机构银行卡 "+loan.getInstitutionAccountNum());
-                //todo:card==null???
                 Card card=findCardByAccountNum(loan.getInstitutionAccountNum());
                 logger.info("先前的贷款机构为"+card);
                 //更新回数据库
@@ -236,9 +233,7 @@ public class LoanServiceImpl implements LoanService {
                 updateRepayPlan(repayPlanList.get(i));
 
                 logger.info("修改后还款计划"+findRepayPlanById(repayPlanList.get(i).getId()));
-                if (findRepayPlanById(repayPlanList.get(i).getId()).getStatus()!=1){
-                    logger.warning("警告：数据库修改失败");
-                }
+
             }
 
         }
@@ -376,18 +371,20 @@ public class LoanServiceImpl implements LoanService {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String nowString=sdf.format(now);
         Date dt=null;
+        dt = getDate(sdf, nowString, dt);
+        Calendar rightNow = Calendar.getInstance();
+        rightNow.setTime(dt);
+        rightNow.add(Calendar.MONTH, 1);
+        Date dt1 = rightNow.getTime();
+        return dt1;
+    }
+    public static Date getDate(SimpleDateFormat sdf, String nowString, Date dt) {
         try {
             dt = sdf.parse(nowString);
         }catch (ParseException e){
             System.out.println(e.getMessage());
         }
-
-        Calendar rightNow = Calendar.getInstance();
-        rightNow.setTime(dt);
-        rightNow.add(Calendar.MONTH, 1);
-        Date dt1 = rightNow.getTime();
-//        String reStr = sdf.format(dt1);
-        return dt1;
+        return dt;
     }
 
     /**

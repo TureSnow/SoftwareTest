@@ -1,6 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.example.lab1.dao.LoanMapper" >
+  <select id="getLoanByIouNum" resultType="Loan">
+    select * from loan where iou_num=#{iouNum}
+  </select>
+
+  <select id="getLoansByCustomerCode" resultType="Loan">
+    select * from loan where customer_code=#{customerCode}
+  </select>
+  <select id="getLoansByAccountNum" resultType="Loan">
+    select * from loan where account_num=#{accountNum}
+  </select>
+
+
+
   <resultMap id="BaseResultMap" type="com.example.lab1.entity.Loan" >
     <id column="id" property="id" jdbcType="INTEGER" />
     <result column="iou_num" property="iouNum" jdbcType="VARCHAR" />
