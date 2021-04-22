@@ -246,7 +246,6 @@ public class ProductServiceImpl implements ProductService {
         if(!loanServiceImpl.payFineOfCard(accountNum))
             return -1;
         Card card = loanServiceImpl.findCardByAccountNum(accountNum);
-        Term term = getTermByTermCode(termCode);
         Customer customer = customerService.getCustomerByCode(customerCode);
         if(card.getBalance()<amount)
             return -1;
@@ -258,7 +257,8 @@ public class ProductServiceImpl implements ProductService {
         customerTerm.setPrinciple(amount);
         customerTerm.setTime(new Date());
         customerTerm.setTermCode(termCode);
-        return customerTermMapper.insert(customerTerm);
+        customerTermMapper.insert(customerTerm);
+        return 1;
     }
 
     public MyTerm queryTermByCustomerIdAndTermCode(int customerId,String termCode){
@@ -300,9 +300,6 @@ public class ProductServiceImpl implements ProductService {
     }
 
 
-
-
-
     public Stock getStockByStockCode(String stockCode) {
         StockExample stockExample = new StockExample();
         stockExample.or().andCodeEqualTo(stockCode);
@@ -317,22 +314,12 @@ public class ProductServiceImpl implements ProductService {
             return -1;
         }
         //先归还罚金
-        if(!loanServiceImpl.payFineOfCard(accountNum)){
-            logger.warning("--------------------fine pay fail");
-            return -1;
-        }
-
+        loanServiceImpl.payFineOfCard(accountNum);
         int lv=getAccountLv(accountNum);
-        if(lv==-1){
-            logger.warning("--------------------account lv error1");
+        if(lv!=1){
+            logger.warning("--------------------account lv error");
             return -1;
         }
-
-        if(lv>1){
-            logger.warning("--------------------account lv error2");
-            return -1;
-        }
-
 
         Card card = loanServiceImpl.findCardByAccountNum(accountNum);
         Customer customer = customerService.getCustomerByCode(customerCode);
@@ -350,7 +337,8 @@ public class ProductServiceImpl implements ProductService {
             buy.setCustomerId(customer.getId());
             buy.setStockCode(stockCode);
             logger.info("--------------------buy ok");
-            return customerStockBuyMapper.insert(buy);
+            customerStockBuyMapper.insert(buy);
+            return 1;
         }
         logger.warning("--------------------buy fail");
         return -1;
@@ -376,9 +364,7 @@ public class ProductServiceImpl implements ProductService {
         for (CustomerStockBuy buy:buys){
             buyNum+=buy.getAmount();
         }
-        if (sells.size()==0)
-            return buyNum;
-        else for(CustomerStockSell sell:sells){
+        for(CustomerStockSell sell:sells){
             buyNum-=sell.getAmount();
         }
         return buyNum;
@@ -479,8 +465,4 @@ public class ProductServiceImpl implements ProductService {
         return null;
     }
 
-    @Override
-    public double queryStockProfitAndLoss(String customerCode) {
-        return 0;
-    }
 }

@@ -129,6 +129,4 @@ public interface ProductService {
      * @return
      */
     List<MyStock> queryStockByCustomerCode(String customerCode);
-
-    double queryStockProfitAndLoss(String customerCode);
 }
