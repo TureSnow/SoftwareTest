@@ -75,10 +75,8 @@ public class LoanServiceImpl implements LoanService {
     }
 
     public Loan findLoanByIouNumber(String iouNum){
-        LoanExample example=new LoanExample();
-        example.or().andIouNumEqualTo(iouNum);
-        List<Loan> loans = loanMapper.selectByExample(example);
-        Loan loan=loans.size()==0?null:loans.get(0);
+
+        Loan loan=loanMapper.getLoanByIouNum(iouNum);
         loan.setDueBalance(calculateDueBalance(iouNum));
         return loan;
     }
@@ -403,6 +401,7 @@ public class LoanServiceImpl implements LoanService {
             allFine+=calculateFine(loanList.get(i).getIouNum());
         }
         //如果罚金比银行卡里的余额多，则无法归还罚金
+
         if(allFine>card.getBalance()){
             return false;
         }

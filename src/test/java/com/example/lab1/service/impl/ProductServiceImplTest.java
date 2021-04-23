@@ -14,6 +14,31 @@ class ProductServiceImplTest {
     @Autowired
     private ProductServiceImpl productService;
     @Test
+    void  testAll(){
+        queryFundRateTimeByFundCode();
+        getAccountLv();
+        queryStockBuyByCustomerCode();
+        queryByCustomerIdAndFundCode();
+        sellStock();
+        queryTermByCustomerIdAndTermCode();
+        getStockByStockCode();
+        buyStock();
+        queryTermByCustomerCode();
+        getLeastStockPrice();
+        getTermByTermCode();
+        merge();
+        queryStockBuyByCustomerCode();
+        checkCustomerAndCard();
+        queryStockSellByCustomerCode();
+        buyFund();
+        buyTerm();
+        queryStockPriceByStockCode();
+        sellFund();
+        getStockNowAccount();
+        selectByCode();
+        queryFundByCustomerCode();
+    }
+
     void checkCustomerAndCard() {
         String customerCodeFalse="falseCode";
         String customerCodeCorrect="demo001202104079";
@@ -41,7 +66,7 @@ class ProductServiceImplTest {
 
     }
 
-    @Test
+
     void getAccountLv() {
         String accountNumberError="test";
         String accountNumber1="6161779470821245928";
@@ -60,7 +85,7 @@ class ProductServiceImplTest {
      * // TODO: 2021/4/22
      * 归还罚金失败稍后再做
      */
-    @Test
+
     void buyFund() {
         String fundCode="FD01";
         String customerCode="demo001202104079";
@@ -85,7 +110,7 @@ class ProductServiceImplTest {
     /**
      * sell fund need to be test after buy fund
      */
-    @Test
+
     void sellFund() {
         String fundCode="FD01";
         String customerCode="demo001202104079";
@@ -103,7 +128,7 @@ class ProductServiceImplTest {
         assertEquals(-1,productService.sellFund(fundCode,customerCode,idNumber,accountNum,password,1000000000));
     }
 
-    @Test
+
     void selectByCode() {
         String code="FD01";
         String code1="test";
@@ -111,14 +136,14 @@ class ProductServiceImplTest {
         assertNull(productService.selectByCode(code1));
     }
 
-    @Test
+
     void queryByCustomerIdAndFundCode() {
         int customerId2=13;
         String fundCode="FD01";
         assertEquals(0,productService.queryByCustomerIdAndFundCode(customerId2,fundCode).getPrincipal());
     }
 
-    @Test
+
     void queryFundByCustomerCode() {
         String customerCode = "test";
         String customerCode1 = "demo001202104079";
@@ -126,17 +151,17 @@ class ProductServiceImplTest {
         assertNotNull(productService.queryFundByCustomerCode(customerCode1));
     }
 
-    @Test
+
     void queryFundRateTimeByFundCode() {
         assertNotNull(productService.queryFundRateTimeByFundCode("FD01"));
     }
 
-    @Test
+
     void getTermByTermCode() {
         assertNotNull(productService.getTermByTermCode("TM01"));
     }
 
-    @Test
+
     void buyTerm() {
         String termCode="TM01";
         String customerCode="demo001202104079";
@@ -152,26 +177,26 @@ class ProductServiceImplTest {
         assertEquals(1,productService.buyTerm(termCode,customerCode,idNumber,accountNum,password,amount));
     }
 
-    @Test
+
     void queryTermByCustomerIdAndTermCode() {
         assertNull(productService.queryTermByCustomerIdAndTermCode(13,"null"));
         assertNull(productService.queryTermByCustomerIdAndTermCode(1,"TM01").getBuyTime());
         assertNotNull(productService.queryTermByCustomerIdAndTermCode(14,"TM01"));
     }
 
-    @Test
+
     void queryTermByCustomerCode() {
         String customerCode="demo001202104079";
         assertNull(productService.queryTermByCustomerCode("null"));
         assertNotNull(productService.queryTermByCustomerCode(customerCode));
     }
 
-    @Test
+
     void getStockByStockCode() {
         assertNotNull(productService.getStockByStockCode("GP01"));
     }
 
-    @Test
+
     void buyStock() {
         String stockCode="GP01";
         String customerCode="demo001202104079";
@@ -191,18 +216,18 @@ class ProductServiceImplTest {
         assertEquals(1,productService.buyStock(stockCode,customerCode,idNumber,accountNum,password,amount));
     }
 
-    @Test
+
     void getLeastStockPrice() {
         assertEquals(90.9,productService.getLeastStockPrice("GP01"));
     }
 
-    @Test
+
     void getStockNowAccount() {
         assertEquals(0,productService.getStockNowAccount(14,"GP02"));
         assertNotEquals(0,productService.getStockNowAccount(14,"GP01"));
     }
 
-    @Test
+
     void sellStock() {
         String stockCode="GP01";
         String customerCode="demo001202104079";
@@ -218,24 +243,23 @@ class ProductServiceImplTest {
         assertEquals(1,productService.sellStock(stockCode,customerCode,idNumber,accountNum,password,amount));
     }
 
-    @Test
     void queryStockPriceByStockCode() {
         assertNotNull(productService.queryStockPriceByStockCode("GP01"));
     }
 
-    @Test
+
     void queryStockPriceInTime() {
         assertEquals(-1,productService.queryStockPriceInTime("test",new Date()));
         assertEquals(90.9,productService.queryStockPriceInTime("GP01",new Date()));
     }
 
-    @Test
+
     void queryStockByCustomerCode() {
         assertNull(productService.queryStockByCustomerCode("test"));
         assertNotNull(productService.queryStockByCustomerCode("demo001202104079"));
     }
 
-    @Test
+
     void merge() {
         List<Integer> list1=new ArrayList<>();
         list1.add(1);
@@ -246,12 +270,12 @@ class ProductServiceImplTest {
         assertEquals(4,ProductServiceImpl.merge(list1,list2).size());
     }
 
-    @Test
+
     void queryStockBuyByCustomerCode() {
         assertNull(productService.queryStockBuyByCustomerCode("test"));
     }
 
-    @Test
+
     void queryStockSellByCustomerCode() {
         assertNull(productService.queryStockSellByCustomerCode("test"));
     }

@@ -9,7 +9,9 @@ import com.example.lab1.entity.Loan;
 import com.example.lab1.entity.RepayPlan;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -27,7 +29,7 @@ class LoanServiceImplTest {
     RepayPlanMapper repayPlanMapper;
     @Autowired
     CardMapper cardMapper;
-    @Before
+
     void init(){
         //修改三张卡的余额
         Card card1=cardMapper.getCardByAccountNum("6161779470821245928");
@@ -41,8 +43,22 @@ class LoanServiceImplTest {
         cardMapper.updateByPrimaryKey(card3);
     }
 
+    void after(){
+        //修改三张卡的余额
+        Card card1=cardMapper.getCardByAccountNum("6161779470821245928");
+        card1.setBalance(6432530.4231);
+        Card card2=cardMapper.getCardByAccountNum("716177967387571");
+        card2.setBalance(24703.8355);
+        Card card3=cardMapper.getCardByAccountNum("6161779470821216793");
+        card3.setBalance(-1.0);
+        cardMapper.updateByPrimaryKey(card1);
+        cardMapper.updateByPrimaryKey(card2);
+        cardMapper.updateByPrimaryKey(card3);
+    }
+
     @Test
     void testGet(){
+        init();
         findUnPayPlans();
         findCustomerByIdNumber();
         findLoansByCustomerCode();
@@ -64,7 +80,7 @@ class LoanServiceImplTest {
         repayPartFail();
         repayAll();
         autoRepay();
-
+        after();
     }
 
     void findUnPayPlans() {
@@ -214,7 +230,7 @@ class LoanServiceImplTest {
     void payFineOfCardFalse(){
         Card card=loanService.findCardByAccountNum("6161779470821245928");
         double old=card.getBalance();
-        card.setBalance(0.0);
+        card.setBalance(-110.0);
         cardMapper.updateByPrimaryKey(card);
 
         List<RepayPlan> repayPlanList=loanService.findRepayPlansByIouNum("L2104081553341");
