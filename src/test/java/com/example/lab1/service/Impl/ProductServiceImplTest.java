@@ -1,12 +1,8 @@
 package com.example.lab1.service.Impl;
 
-import org.junit.Before;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.event.annotation.BeforeTestMethod;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -111,8 +107,8 @@ class ProductServiceImplTest {
     void selectByCode() {
         String code="FD01";
         String code1="test";
-        assertNotNull(productService.selectByCode(code));
-        assertNull(productService.selectByCode(code1));
+        assertNotNull(productService.selectFundByCode(code));
+        assertNull(productService.selectFundByCode(code1));
     }
 
     @Test

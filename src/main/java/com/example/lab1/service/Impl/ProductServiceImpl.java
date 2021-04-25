@@ -179,7 +179,7 @@ public class ProductServiceImpl implements ProductService {
         }
         return -1;
     }
-    public Fund selectByCode(String fundCode){
+    public Fund selectFundByCode(String fundCode){
         FundExample example=new FundExample();
         example.or().andCodeEqualTo(fundCode);
         List<Fund> funds = fundMapper.selectByExample(example);
@@ -189,7 +189,7 @@ public class ProductServiceImpl implements ProductService {
     //查询某一客户对某一基金的持有量
     public MyFund queryByCustomerIdAndFundCode(int customerId,String fundCode){
         CustomerFundBuyExample example=new CustomerFundBuyExample();
-        Fund fund = selectByCode(fundCode);
+        Fund fund = selectFundByCode(fundCode);
         example.or().andCustomerIdEqualTo(customerId).andFundCodeEqualTo(fundCode);
         List<CustomerFundBuy> buys = customerFundBuyMapper.selectByExample(example);
         MyFund res;
