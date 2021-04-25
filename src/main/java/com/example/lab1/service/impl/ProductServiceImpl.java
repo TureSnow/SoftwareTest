@@ -1,4 +1,4 @@
-package com.example.lab1.service.Impl;
+package com.example.lab1.service.impl;
 import com.example.lab1.dao.*;
 import com.example.lab1.entity.*;
 import com.example.lab1.model.MyFund;

@@ -1,7 +1,8 @@
-package com.example.lab1.service;
+package com.example.lab1.service.impl;
 
 import com.example.lab1.entity.Customer;
 import com.example.lab1.model.MyCard;
+import com.example.lab1.service.CustomerService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -6,6 +6,9 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 public interface LoanMapper {
+    Loan getLoanByIouNum(String iouNum);
+    List<Loan> getLoansByCustomerCode(String customerCode);
+    List<Loan> getLoansByAccountNum(String accountNum);
     int countByExample(LoanExample example);
 
     int deleteByExample(LoanExample example);
