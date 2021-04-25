@@ -2,8 +2,10 @@ package com.example.lab1.dao;
 
 import com.example.lab1.entity.Card;
 import com.example.lab1.entity.CardExample;
-import java.util.List;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+
 
 public interface CardMapper {
     Card getCardByAccountNum(String accountNum);

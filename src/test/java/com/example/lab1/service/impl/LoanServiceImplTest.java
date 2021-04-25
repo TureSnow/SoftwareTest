@@ -63,8 +63,6 @@ class LoanServiceImplTest {
         findRepayPlansByIouNum();
         canRepayFalse();
         getUnPayLoanAmount();
-
-
     }
     @Test
     void testUpdate(){

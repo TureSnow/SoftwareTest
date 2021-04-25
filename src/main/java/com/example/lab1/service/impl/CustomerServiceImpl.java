@@ -1,4 +1,4 @@
-package com.example.lab1.service.impl;
+package com.example.lab1.service.Impl;
 
 import com.example.lab1.dao.CardMapper;
 import com.example.lab1.dao.CustomerMapper;

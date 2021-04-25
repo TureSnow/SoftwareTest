@@ -30,9 +30,9 @@ public class ProductServiceImpl implements ProductService {
     private LoanMapper loanMapper;
     private CustomerMapper customerMapper;
     @Autowired
-    private com.example.lab1.service.impl.LoanServiceImpl loanServiceImpl;
+    private LoanServiceImpl loanServiceImpl;
     @Autowired
-    private com.example.lab1.service.impl.CustomerServiceImpl customerService;
+    private CustomerServiceImpl customerService;
     Logger logger=Logger.getLogger(this.getClass().getName());
     @Autowired
     public ProductServiceImpl(StockMapper stockMapper, StockPriceTimeMapper stockPriceTimeMapper,
