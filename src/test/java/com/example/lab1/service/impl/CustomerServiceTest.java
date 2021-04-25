@@ -1,4 +1,4 @@
-package com.example.lab1.service.impl;
+package com.example.lab1.service.Impl;
 
 import com.example.lab1.entity.Customer;
 import com.example.lab1.model.MyCard;
@@ -14,8 +14,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class CustomerServiceTest {
     @Autowired
     private CustomerService customerService;
-
-    String customerId="432561200009087821";
     @Test
     void getCardsByCustomerCode() {
         String customerCode1="demo001202104078";
@@ -31,11 +29,14 @@ class CustomerServiceTest {
         String customerCode="demo001202104078";
         Customer customer = customerService.getCustomerByCode(customerCode);
         assertNotNull(customer);
+        assertNull(customerService.getCustomerByCode("test"));
     }
 
     @Test
     void getCustomerByIdNumber() {
+        String customerId="432561200009087821";
         Customer customer = customerService.getCustomerByIdNumber(customerId);
         assertNotNull(customer);
+        assertNull(customerService.getCustomerByIdNumber("test"));
     }
 }

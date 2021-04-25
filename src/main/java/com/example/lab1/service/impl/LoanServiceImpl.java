@@ -1,4 +1,4 @@
-package com.example.lab1.service.impl;
+package com.example.lab1.service.Impl;
 
 import com.example.lab1.dao.CardMapper;
 import com.example.lab1.dao.LoanMapper;
@@ -20,7 +20,7 @@ public class LoanServiceImpl implements LoanService {
     private RepayPlanMapper repayPlanMapper;
     private CardMapper cardMapper;
     @Autowired
-    private CustomerServiceImpl customerService;
+    private com.example.lab1.service.impl.CustomerServiceImpl customerService;
     Logger logger=Logger.getLogger(LoanServiceImpl.class.getName());
     @Autowired
     public LoanServiceImpl(LoanMapper loanMapper, RepayPlanMapper repayPlanMapper, CardMapper cardMapper) {

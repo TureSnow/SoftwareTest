@@ -1,4 +1,5 @@
-package com.example.lab1.service.impl;
+package com.example.lab1.service.Impl;
+
 import com.example.lab1.dao.*;
 import com.example.lab1.entity.*;
 import com.example.lab1.model.MyFund;
@@ -7,6 +8,7 @@ import com.example.lab1.model.MyTerm;
 import com.example.lab1.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,9 +30,9 @@ public class ProductServiceImpl implements ProductService {
     private LoanMapper loanMapper;
     private CustomerMapper customerMapper;
     @Autowired
-    private LoanServiceImpl loanServiceImpl;
+    private com.example.lab1.service.impl.LoanServiceImpl loanServiceImpl;
     @Autowired
-    private CustomerServiceImpl customerService;
+    private com.example.lab1.service.impl.CustomerServiceImpl customerService;
     Logger logger=Logger.getLogger(this.getClass().getName());
     @Autowired
     public ProductServiceImpl(StockMapper stockMapper, StockPriceTimeMapper stockPriceTimeMapper,
@@ -440,7 +442,7 @@ public class ProductServiceImpl implements ProductService {
         return merge(iHave,notHave);
     }
 
-    static <T> List<T> merge(List<T> l1,List<T>l2){
+    public static <T> List<T> merge(List<T> l1, List<T> l2){
         List<T> res=new LinkedList<>();
         for (T t:l1){
             res.add(t);

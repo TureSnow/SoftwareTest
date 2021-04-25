@@ -1,4 +1,4 @@
-package com.example.lab1.service.impl;
+package com.example.lab1.service.Impl;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,28 +15,29 @@ class ProductServiceImplTest {
     private ProductServiceImpl productService;
     @Test
     void  testAll(){
-        queryFundRateTimeByFundCode();
+        checkCustomerAndCard();
         getAccountLv();
-        queryStockBuyByCustomerCode();
+        buyFund();
+        sellFund();
+        selectFundByCode();
         queryByCustomerIdAndFundCode();
-        sellStock();
+        queryFundByCustomerCode();
+        queryFundRateTimeByFundCode();
+        getTermByTermCode();
+        buyTerm();
         queryTermByCustomerIdAndTermCode();
+        queryTermByCustomerCode();
         getStockByStockCode();
         buyStock();
-        queryTermByCustomerCode();
         getLeastStockPrice();
-        getTermByTermCode();
+        getStockNowAccount();
+        sellStock();
+        queryStockPriceByStockCode();
+        queryStockPriceInTime();
+        queryStockByCustomerCode();
         merge();
         queryStockBuyByCustomerCode();
-        checkCustomerAndCard();
         queryStockSellByCustomerCode();
-        buyFund();
-        buyTerm();
-        queryStockPriceByStockCode();
-        sellFund();
-        getStockNowAccount();
-        selectByCode();
-        queryFundByCustomerCode();
     }
 
     void checkCustomerAndCard() {
@@ -57,6 +58,9 @@ class ProductServiceImplTest {
         //account error
         assertEquals(false, productService.checkCustomerAndCard(customerCodeCorrect,customerIdCorrect,
                 accountNumberFalse,passwordCorrect));
+        //card not compare to customer
+        assertEquals(false,productService.checkCustomerAndCard("demo001202104078","432561200009087821"
+        ,accountNumberCorrect,passwordCorrect));
         //password error
         assertEquals(false, productService.checkCustomerAndCard(customerCodeCorrect,customerIdCorrect,
                 accountNumberCorrect,passwordFalse));
@@ -129,7 +133,7 @@ class ProductServiceImplTest {
     }
 
 
-    void selectByCode() {
+    void selectFundByCode() {
         String code="FD01";
         String code1="test";
         assertNotNull(productService.selectFundByCode(code));
@@ -194,6 +198,7 @@ class ProductServiceImplTest {
 
     void getStockByStockCode() {
         assertNotNull(productService.getStockByStockCode("GP01"));
+        assertNull(productService.getStockByStockCode("test"));
     }
 
 
@@ -219,6 +224,7 @@ class ProductServiceImplTest {
 
     void getLeastStockPrice() {
         assertEquals(90.9,productService.getLeastStockPrice("GP01"));
+        assertEquals(0,productService.getLeastStockPrice("test"));
     }
 
 
@@ -267,7 +273,7 @@ class ProductServiceImplTest {
         List<Integer> list2=new ArrayList<>();
         list2.add(3);
         list2.add(4);
-        assertEquals(4,ProductServiceImpl.merge(list1,list2).size());
+        assertEquals(4, ProductServiceImpl.merge(list1,list2).size());
     }
 
 
